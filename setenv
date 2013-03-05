@@ -1,0 +1,7 @@
+# Set up canonical environment variables
+
+export OPENOCD_DIR=/opt/openocd
+export CSL_DIR=/usr/local/csl/arm-2012.03
+
+export PATH=$CSL_DIR/bin:$OPENOCD_DIR/bin:$PATH
+export EDITOR=vim
