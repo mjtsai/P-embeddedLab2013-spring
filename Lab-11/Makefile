@@ -1,0 +1,26 @@
+CROSS_COMPILE ?= arm-none-eabi-
+
+CC = $(CROSS_COMPILE)gcc
+LD = $(CROSS_COMPILE)ld
+
+CFLAGS = -ansi -pedantic \
+	 -Wall -Wextra \
+	 -march=armv5te -msoft-float -fPIC \
+	 -mapcs-frame -marm \
+	 -ffreestanding
+LDFLAGS = -N -Ttext=0x10000
+
+kernel.elf: lowlevel.o kernel.o context_switch.o syscalls.o
+
+.PHONY: clean
+
+clean:
+	$(RM) *.elf *.o
+
+.SUFFIXES: .s .o .elf
+
+.s.o:
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+.o.elf:
+	$(LD) $(LDFLAGS) -o $@ $^
