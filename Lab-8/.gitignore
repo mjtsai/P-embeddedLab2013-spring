@@ -2,3 +2,5 @@
 *.elf
 *.bin
 *.vcd
+gdb.txt
+main.list
