@@ -17,7 +17,7 @@ FREERTOS_PORT_INC = $(FREERTOS_SRC)/portable/GCC/ARM_$(ARCH)/
 
 all: main.bin
 
-main.bin: main.c
+main.bin: kernel.c
 	$(CROSS_COMPILE)gcc \
 		-Wl,-Tmain.ld -nostartfiles \
 		-I. -I$(FREERTOS_INC) -I$(FREERTOS_PORT_INC) \
@@ -46,7 +46,7 @@ main.bin: main.c
 		$(FREERTOS_SRC)/portable/MemMang/heap_1.c \
 		\
 		stm32_p103.c \
-		main.c
+		kernel.c
 	$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
 	$(CROSS_COMPILE)objdump -S main.elf > main.list
 
