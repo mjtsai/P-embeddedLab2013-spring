@@ -1,0 +1,11 @@
+1. 相較之下 2012 我沒有寫出具體的時間，大概只精確到 tick，範例也是；範例的 log 比較少就能抓到變化。這裡假設 tick = 1us，應該是不準的，只有考慮 cpu 時間，沒有考慮 IO 時間，是不準的
+
+2. 一次只有一個 task 在動，其實只需要一個 stream 就好；一定要有 log 才有 waveform；scheduler 開始前的時間沒有包含進；task 的 life time 應該不算 interrupt 的時間
+
+
+3. 
+
+
+
+
+
