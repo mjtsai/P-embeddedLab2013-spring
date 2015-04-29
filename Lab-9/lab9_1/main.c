@@ -9,6 +9,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "croutine.h"
 
 /* Our own string function implementation */
 #include "string-util.h"
@@ -33,6 +34,7 @@ typedef struct {
  * interrupts). */
 void USART2_IRQHandler()
 {
+//{{{    
 	static signed portBASE_TYPE xHigherPriorityTaskWoken;
 	serial_ch_msg rx_msg;
 
@@ -52,11 +54,15 @@ void USART2_IRQHandler()
 		rx_msg.ch = USART_ReceiveData(USART2);
 
 		/* Queue the received byte. */
-		if(!xQueueSendToBackFromISR(serial_rx_queue, &rx_msg, &xHigherPriorityTaskWoken)) {
+//		if(!xQueueSendToBackFromISR(serial_rx_queue, &rx_msg, &xHigherPriorityTaskWoken)) {
+		crQUEUE_SEND_FROM_ISR(serial_rx_queue, &rx_msg, xHigherPriorityTaskWoken);
+		if(xHigherPriorityTaskWoken != pdTRUE) {
 			/* If there was an error queueing the received byte,
 			 * freeze. */
 			while(1);
 		}
+
+
 	}
 	else {
 		/* Only transmit and receive interrupts should be enabled.
@@ -68,10 +74,12 @@ void USART2_IRQHandler()
 	if (xHigherPriorityTaskWoken) {
 		taskYIELD();
 	}
+//}}}    
 }
 
 void send_byte(char ch)
 {
+//{{{    
 	/* Wait until the RS232 port can receive another byte (this semaphore
 	 * is "given" by the RS232 port interrupt when the buffer has room for
 	 * another byte.
@@ -83,39 +91,84 @@ void send_byte(char ch)
 	 */
 	USART_SendData(USART2, ch);
 	USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
+//}}}    
 }
 
-char receive_byte()
+//char receive_byte()
+//{
+////{{{    
+//	serial_ch_msg msg;
+//
+//	/* Wait for a byte to be queued by the receive interrupts handler. */
+//	while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
+//
+//	return msg.ch;
+////}}}    
+//}
+
+//void led_flash_task(void *pvParameters)
+//{
+////{{{    
+//	while (1) {
+//		/* Toggle the LED. */
+//		GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
+//
+//		/* Wait one second. */
+//		vTaskDelay(100);
+//	}
+////}}}    
+//}
+void led_flash_cr( xCoRoutineHandle xHandle, unsigned portBASE_TYPE uxIndex )
 {
-	serial_ch_msg msg;
-
-	/* Wait for a byte to be queued by the receive interrupts handler. */
-	while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
-
-	return msg.ch;
-}
-
-void led_flash_task(void *pvParameters)
-{
+//{{{    
+    crSTART(xHandle);
 	while (1) {
 		/* Toggle the LED. */
 		GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
 
 		/* Wait one second. */
-		vTaskDelay(100);
+		crDELAY(xHandle, 100);
 	}
+    crEND();
+//}}}    
 }
 
-void rs232_xmit_msg_task(void *pvParameters)
+//void rs232_xmit_msg_task(void *pvParameters)
+//{
+////{{{    
+//	serial_str_msg msg;
+//	int curr_char;
+//
+//	while (1) {
+//		/* Read from the queue.  Keep trying until a message is
+//		 * received.  This will block for a period of time (specified
+//		 * by portMAX_DELAY). */
+//		while (!xQueueReceive(serial_str_queue, &msg, portMAX_DELAY));
+//
+//		/* Write each character of the message to the RS232 port. */
+//		curr_char = 0;
+//		while (msg.str[curr_char] != '\0') {
+//			send_byte(msg.str[curr_char]);
+//			curr_char++;
+//		}
+//	}
+////}}}    
+//}
+void rs232_xmit_msg_cr( xCoRoutineHandle xHandle, unsigned portBASE_TYPE uxIndex )
 {
+//{{{    
 	serial_str_msg msg;
 	int curr_char;
+    portBASE_TYPE xResult;
 
+    crSTART(xHandle);
 	while (1) {
 		/* Read from the queue.  Keep trying until a message is
 		 * received.  This will block for a period of time (specified
 		 * by portMAX_DELAY). */
-		while (!xQueueReceive(serial_str_queue, &msg, portMAX_DELAY));
+        do{
+            crQUEUE_RECEIVE( xHandle, serial_str_queue, &msg, portMAX_DELAY, &xResult );
+        }while(xResult != pdPASS);
 
 		/* Write each character of the message to the RS232 port. */
 		curr_char = 0;
@@ -124,6 +177,8 @@ void rs232_xmit_msg_task(void *pvParameters)
 			curr_char++;
 		}
 	}
+    crEND();
+//}}}    
 }
 
 
@@ -131,40 +186,119 @@ void rs232_xmit_msg_task(void *pvParameters)
  *   delay - the time to wait between sending messages.  A delay of 1 means
  *           wait 1/100th of a second.
  */
-void queue_str_task(const char *str, int delay)
-{
-	serial_str_msg msg;
+//void queue_str_task(const char *str, int delay)
+//{
+////{{{    
+//	serial_str_msg msg;
+//
+//	/* Prepare the message to be queued. */
+//	my_strcpy(msg.str, str);
+//
+//	while (1) {
+//		/* Post the message.  Keep on trying until it is successful. */
+//		while (!xQueueSendToBack(serial_str_queue, &msg,
+//		       portMAX_DELAY));
+//
+//		/* Wait. */
+//		vTaskDelay(delay);
+//	}
+////}}}    
+//}
 
+//void queue_str_task1(void *pvParameters)
+//{
+////{{{    
+//	queue_str_task("Hello 1\n", 200);
+////}}}    
+//}
+
+//void queue_str_task2(void *pvParameters)
+//{
+////{{{    
+//	queue_str_task("Hello 2\n", 50);
+////}}}    
+//}
+
+const char  q_str_msg[2][10] = { "Hello 1\n", "Hello 2\n" };
+const int   q_str_delay[2] = { 200, 50 };
+
+void queue_str_cr( xCoRoutineHandle xHandle, unsigned portBASE_TYPE uxIndex )
+{
+//{{{    
+	serial_str_msg msg;
+    portBASE_TYPE xResult;
+
+    crSTART(xHandle);
 	/* Prepare the message to be queued. */
-	my_strcpy(msg.str, str);
+	my_strcpy(msg.str, q_str_msg[uxIndex] );
 
 	while (1) {
 		/* Post the message.  Keep on trying until it is successful. */
-		while (!xQueueSendToBack(serial_str_queue, &msg,
-		       portMAX_DELAY));
+        do{
+            crQUEUE_SEND( xHandle, serial_str_queue, &msg, portMAX_DELAY, &xResult );
+        }while(xResult != pdPASS);
 
 		/* Wait. */
-		vTaskDelay(delay);
+		crDELAY(xHandle, q_str_delay[uxIndex]);
 	}
+    crEND();
+//}}}    
 }
 
-void queue_str_task1(void *pvParameters)
+//void serial_readwrite_task(void *pvParameters)
+//{
+////{{{    
+//	serial_str_msg msg;
+//	char ch;
+//	int curr_char;
+//	int done;
+//
+//	/* Prepare the response message to be queued. */
+//	my_strcpy(msg.str, "Got:");
+//
+//	while (1) {
+//		curr_char = 4;
+//		done = 0;
+//		do {
+//			/* Receive a byte from the RS232 port (this call will
+//			 * block). */
+//			ch = receive_byte();
+//
+//			/* If the byte is an end-of-line type character, then
+//			 * finish the string and inidcate we are done.
+//			 */
+//			if ((ch == '\r') || (ch == '\n')) {
+//				msg.str[curr_char] = '\n';
+//				msg.str[curr_char+1] = '\0';
+//				done = -1;
+//				/* Otherwise, add the character to the
+//				 * response string. */
+//			}
+//			else {
+//				msg.str[curr_char++] = ch;
+//			}
+//		} while (!done);
+//
+//		/* Once we are done building the response string, queue the
+//		 * response to be sent to the RS232 port.
+//		 */
+//		while (!xQueueSendToBack(serial_str_queue, &msg,
+//		                         portMAX_DELAY));
+//	}
+////}}}    
+//}
+void serial_readwrite_cr( xCoRoutineHandle xHandle, unsigned portBASE_TYPE uxIndex )
 {
-	queue_str_task("Hello 1\n", 200);
-}
+//{{{    
+	serial_str_msg  msg;
+	char            ch;
+	int             curr_char;
+	int             done;
 
-void queue_str_task2(void *pvParameters)
-{
-	queue_str_task("Hello 2\n", 50);
-}
+    serial_ch_msg   ch_msg;
+    portBASE_TYPE xResult;
 
-void serial_readwrite_task(void *pvParameters)
-{
-	serial_str_msg msg;
-	char ch;
-	int curr_char;
-	int done;
-
+    crSTART(xHandle);
 	/* Prepare the response message to be queued. */
 	my_strcpy(msg.str, "Got:");
 
@@ -174,7 +308,14 @@ void serial_readwrite_task(void *pvParameters)
 		do {
 			/* Receive a byte from the RS232 port (this call will
 			 * block). */
-			ch = receive_byte();
+//			ch = receive_byte();
+
+	        /* Wait for a byte to be queued by the receive interrupts handler. */
+            do{
+                crQUEUE_RECEIVE( xHandle, serial_rx_queue, &ch_msg, portMAX_DELAY, &xResult);
+            }while(xResult != pdTRUE);
+
+            ch = ch_msg.ch;
 
 			/* If the byte is an end-of-line type character, then
 			 * finish the string and inidcate we are done.
@@ -194,9 +335,12 @@ void serial_readwrite_task(void *pvParameters)
 		/* Once we are done building the response string, queue the
 		 * response to be sent to the RS232 port.
 		 */
-		while (!xQueueSendToBack(serial_str_queue, &msg,
-		                         portMAX_DELAY));
+        do{
+            crQUEUE_SEND( xHandle, serial_str_queue, &msg, portMAX_DELAY, &xResult );
+        }while(xResult != pdPASS);
 	}
+    crEND();
+//}}}    
 }
 
 int main()
@@ -217,32 +361,41 @@ int main()
 	serial_rx_queue = xQueueCreate(1, sizeof(serial_ch_msg));
 
 	/* Create a task to flash the LED. */
-	xTaskCreate(led_flash_task,
-	            (signed portCHAR *) "LED Flash",
-	            512 /* stack size */, NULL,
-	            tskIDLE_PRIORITY + 5, NULL);
-
+//	xTaskCreate(led_flash_task,
+//	            (signed portCHAR *) "LED Flash",
+//	            512 /* stack size */, NULL,
+//	            tskIDLE_PRIORITY + 5, NULL);
+	xCoRoutineCreate(led_flash_cr,
+	            tskIDLE_PRIORITY + 5, 0);
 	/* Create tasks to queue a string to be written to the RS232 port. */
-	xTaskCreate(queue_str_task1,
-	            (signed portCHAR *) "Serial Write 1",
-	            512 /* stack size */, NULL,
-	            tskIDLE_PRIORITY + 10, NULL );
-	xTaskCreate(queue_str_task2,
-	            (signed portCHAR *) "Serial Write 2",
-	            512 /* stack size */,
-	            NULL, tskIDLE_PRIORITY + 10, NULL);
+//	xTaskCreate(queue_str_task1,
+//	            (signed portCHAR *) "Serial Write 1",
+//	            512 /* stack size */, NULL,
+//	            tskIDLE_PRIORITY + 10, NULL );
+ 	xCoRoutineCreate(queue_str_cr,
+	            tskIDLE_PRIORITY + 10, 1);
+//	xTaskCreate(queue_str_task2,
+//	            (signed portCHAR *) "Serial Write 2",
+//	            512 /* stack size */,
+//	            NULL, tskIDLE_PRIORITY + 10, NULL);
+	xCoRoutineCreate(queue_str_cr,
+	            tskIDLE_PRIORITY + 10, 2);
 
 	/* Create a task to write messages from the queue to the RS232 port. */
-	xTaskCreate(rs232_xmit_msg_task,
-	            (signed portCHAR *) "Serial Xmit Str",
-	            512 /* stack size */, NULL, tskIDLE_PRIORITY + 2, NULL);
+//	xTaskCreate(rs232_xmit_msg_task,
+//	            (signed portCHAR *) "Serial Xmit Str",
+//	            512 /* stack size */, NULL, tskIDLE_PRIORITY + 2, NULL);
+	xCoRoutineCreate(rs232_xmit_msg_cr,
+	            tskIDLE_PRIORITY + 2, 3);
 
 	/* Create a task to receive characters from the RS232 port and echo
 	 * them back to the RS232 port. */
-	xTaskCreate(serial_readwrite_task,
-	            (signed portCHAR *) "Serial Read/Write",
-	            512 /* stack size */, NULL,
-	            tskIDLE_PRIORITY + 10, NULL);
+//	xTaskCreate(serial_readwrite_task,
+//	            (signed portCHAR *) "Serial Read/Write",
+//	            512 /* stack size */, NULL,
+//	            tskIDLE_PRIORITY + 10, NULL);
+	xCoRoutineCreate(serial_readwrite_cr,
+	            tskIDLE_PRIORITY + 10, 4);
 
 	/* Start running the tasks. */
 	vTaskStartScheduler();
@@ -252,4 +405,9 @@ int main()
 
 void vApplicationTickHook()
 {
+}
+
+void vApplicationIdleHook()
+{
+    vCoRoutineSchedule();
 }
