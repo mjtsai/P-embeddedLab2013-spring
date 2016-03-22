@@ -30,17 +30,18 @@ typedef struct {
 } serial_ch_msg;
 
 
-void timeout_trap(){
+void timeout_trap_high_priority(){              // to recognize if trapped
     while(1){
         GPIOC->ODR = GPIOC->ODR ^ 0x00001000;        
-        vTaskDelay(100);
     }
 }
+
 
 /* IRQ handler to handle USART2 interruptss (both transmit and receive
  * interrupts). */
 void USART2_IRQHandler()
 {
+//{{{   
 	static signed portBASE_TYPE xHigherPriorityTaskWoken;
 	serial_ch_msg rx_msg;
 
@@ -76,10 +77,44 @@ void USART2_IRQHandler()
 	if (xHigherPriorityTaskWoken) {
 		taskYIELD();
 	}
+//}}}    
 }
+
+void disrupt_task()
+{
+//{{{    
+    volatile int i;
+    while(1){
+	    while (!xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
+
+        // consume much time in this task
+        // ~101 instructions * cpu clock * 1000 ~ 1.38ms
+        for(i=0; i<1000; i++){
+            USART_SendData(USART2, 'p');
+            USART_SendData(USART2, 'r');
+            USART_SendData(USART2, 'e');
+            USART_SendData(USART2, 'e');
+            USART_SendData(USART2, 'm');
+            USART_SendData(USART2, 'p');
+            USART_SendData(USART2, 't');
+            USART_SendData(USART2, ' ');
+            USART_SendData(USART2, 'A'+i/100);
+            USART_SendData(USART2, 'A'+(i%100)/10);
+            USART_SendData(USART2, 'A'+i%10);
+            USART_SendData(USART2, '\n');
+            USART_SendData(USART2, '\r');
+        }
+//        for(i=0; i<100000; i++);
+	    USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
+        vTaskDelay(100);
+    }
+//}}}    
+}
+
 
 void send_byte(char ch)
 {
+//{{{    
 	/* Wait until the RS232 port can receive another byte (this semaphore
 	 * is "given" by the RS232 port interrupt when the buffer has room for
 	 * another byte.
@@ -91,20 +126,24 @@ void send_byte(char ch)
 	 */
 	USART_SendData(USART2, ch);
 	USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
+//}}}    
 }
 
 char receive_byte()
 {
+//{{{    
 	serial_ch_msg msg;
 
 	/* Wait for a byte to be queued by the receive interrupts handler. */
 	while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
 
 	return msg.ch;
+//}}}    
 }
 
 void rs232_xmit_msg_task(void *pvParameters)
 {
+//{{{    
 	serial_str_msg msg;
 	int curr_char;
 
@@ -121,6 +160,7 @@ void rs232_xmit_msg_task(void *pvParameters)
 			curr_char++;
 		}
 	}
+///}}}    
 }
 
 
@@ -130,6 +170,7 @@ void rs232_xmit_msg_task(void *pvParameters)
  */
 void queue_str_task(const char *str, int delay)
 {
+//{{{    
 	serial_str_msg msg;
 
 	/* Prepare the message to be queued. */
@@ -137,12 +178,17 @@ void queue_str_task(const char *str, int delay)
 
 	while (1) {
 		/* Post the message.  Keep on trying until it is successful. */
-		while (!xQueueSendToBack(serial_str_queue, &msg,                    // enter critical
-		       portMAX_DELAY));
+//		while (!xQueueSendToBack(serial_str_queue, &msg, portMAX_DELAY));                   // enter critical
+		if (xQueueSendToBack(serial_str_queue, &msg, ( portTickType )100)!=pdTRUE){         // enter critical
+            timeout_trap_high_priority();                                                   // if high priority been blocked then goto trap
+//	        my_strcpy(msg.str, "timeout");
+//		    while (!xQueueSendToBack(serial_str_queue, &msg, portMAX_DELAY));               // enter critical
+        }
 
 		/* Wait. */
 		vTaskDelay(delay);
 	}
+//}}}    
 }
 
 void queue_str_task1(void *pvParameters)
@@ -157,6 +203,7 @@ void queue_str_task2(void *pvParameters)
 
 void serial_readwrite_task(void *pvParameters)
 {
+//{{{    
 	serial_str_msg msg;
 	char ch;
 	int curr_char;
@@ -191,9 +238,9 @@ void serial_readwrite_task(void *pvParameters)
 		/* Once we are done building the response string, queue the
 		 * response to be sent to the RS232 port.
 		 */
-		while (!xQueueSendToBack(serial_str_queue, &msg,                // enter critical
-		                         portMAX_DELAY));
+		while (!xQueueSendToBack(serial_str_queue, &msg, portMAX_DELAY));       // enter critical
 	}
+//}}}    
 }
 
 int main()
@@ -209,7 +256,7 @@ int main()
 
 	/* Create the queue used by the serial task.  Messages for write to
 	 * the RS232. */
-	serial_str_queue = xQueueCreate(10, sizeof(serial_str_msg));
+	serial_str_queue = xQueueCreate(1, sizeof(serial_str_msg));
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	serial_rx_queue = xQueueCreate(1, sizeof(serial_ch_msg));
 
@@ -227,6 +274,10 @@ int main()
     //
     // rs232_xmit_msg_task:send_byte -> <serial_tx_wait_sem> -> isr(complete)
     // 
+
+    // insert a middle priority task to grab <serial_tx_wait_sem> for a long time
+    // higher tasks set bounded timeout
+    // queue_str_task1 = queue_str_task2 = serial_readwrite_task > disrupt_task > rs232_xmit_msg_task
 
 	/* Create tasks to queue a string to be written to the RS232 port. */
 	xTaskCreate(queue_str_task1,
@@ -250,6 +301,13 @@ int main()
 	            (signed portCHAR *) "Serial Read/Write",
 	            512 /* stack size */, NULL,
 	            tskIDLE_PRIORITY + 10, NULL);
+
+    // middle priority
+	xTaskCreate(disrupt_task,
+	            (signed portCHAR *) "Disrupt",
+	            512 /* stack size */, NULL,
+	            tskIDLE_PRIORITY + 5, NULL);
+
 
 	/* Start running the tasks. */
 	vTaskStartScheduler();
