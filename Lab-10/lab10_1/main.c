@@ -29,6 +29,14 @@ typedef struct {
 	char ch;
 } serial_ch_msg;
 
+
+void timeout_trap(){
+    while(1){
+        GPIOC->ODR = GPIOC->ODR ^ 0x00001000;        
+        vTaskDelay(100);
+    }
+}
+
 /* IRQ handler to handle USART2 interruptss (both transmit and receive
  * interrupts). */
 void USART2_IRQHandler()
