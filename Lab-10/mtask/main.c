@@ -104,7 +104,7 @@ void rs232_xmit_msg_task(void *pvParameters)
 		/* Read from the queue.  Keep trying until a message is
 		 * received.  This will block for a period of time (specified
 		 * by portMAX_DELAY). */
-		while (!xQueueReceive(serial_str_queue, &msg, portMAX_DELAY));
+		while (!xQueueReceive(serial_str_queue, &msg, portMAX_DELAY));          // enter critical
 
 		/* Write each character of the message to the RS232 port. */
 		curr_char = 0;
@@ -129,7 +129,7 @@ void queue_str_task(const char *str, int delay)
 
 	while (1) {
 		/* Post the message.  Keep on trying until it is successful. */
-		while (!xQueueSendToBack(serial_str_queue, &msg,
+		while (!xQueueSendToBack(serial_str_queue, &msg,                    // enter critical
 		       portMAX_DELAY));
 
 		/* Wait. */
@@ -183,7 +183,7 @@ void serial_readwrite_task(void *pvParameters)
 		/* Once we are done building the response string, queue the
 		 * response to be sent to the RS232 port.
 		 */
-		while (!xQueueSendToBack(serial_str_queue, &msg,
+		while (!xQueueSendToBack(serial_str_queue, &msg,                // enter critical
 		                         portMAX_DELAY));
 	}
 }
@@ -205,6 +205,21 @@ int main()
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	serial_rx_queue = xQueueCreate(1, sizeof(serial_ch_msg));
 
+
+    // queue_str_task1 = queue_str_task2 = serial_readwrite_task > rs232_xmit_msg_task
+    // 
+    // 
+    // 
+    // queue_str_task1 ->
+    // queue_str_task2 ->
+    //                                                               -> [serial_str_queue] -> rs232_xmit_msg_task
+    // isr -> [serial_rx_queue] -> serial_readwrite_task:receive_byte
+    // 
+    // ---------->
+    //
+    // rs232_xmit_msg_task:send_byte -> <serial_tx_wait_sem> -> isr(complete)
+    // 
+
 	/* Create tasks to queue a string to be written to the RS232 port. */
 	xTaskCreate(queue_str_task1,
 	            (signed portCHAR *) "Serial Write 1",
@@ -212,13 +227,14 @@ int main()
 	            tskIDLE_PRIORITY + 10, NULL );
 	xTaskCreate(queue_str_task2,
 	            (signed portCHAR *) "Serial Write 2",
-	            512 /* stack size */,
-	            NULL, tskIDLE_PRIORITY + 10, NULL);
+	            512 /* stack size */, NULL, 
+                tskIDLE_PRIORITY + 10, NULL);
 
 	/* Create a task to write messages from the queue to the RS232 port. */
 	xTaskCreate(rs232_xmit_msg_task,
 	            (signed portCHAR *) "Serial Xmit Str",
-	            512 /* stack size */, NULL, tskIDLE_PRIORITY + 2, NULL);
+	            512 /* stack size */, NULL, 
+                tskIDLE_PRIORITY + 2, NULL);
 
 	/* Create a task to receive characters from the RS232 port and echo
 	 * them back to the RS232 port. */
