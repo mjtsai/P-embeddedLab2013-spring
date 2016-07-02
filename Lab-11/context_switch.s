@@ -46,16 +46,16 @@ svc_entry:
 .global activate
 activate:
 	/* save kernel state */
-	mov ip, sp
+	mov ip, sp                                          /* Intra-Procedure-call scratch register */
 	push {r4,r5,r6,r7,r8,r9,r10,fp,ip,lr}
 
-	ldmfd r0!, {ip,lr}
+	ldmfd r0!, {ip,lr}                                  /* mode = ip = *(r0) , function pointer = lr = *(r0+4) , r0+=8 */   /* [0] [1] */ /* SVC bank */
 	msr SPSR, ip
 
-	msr CPSR_c, #0xDF /* system mode */
+	msr CPSR_c, #0xDF                                   /* system mode */
 	mov sp, r0
-	pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,fp,ip,lr}
-	pop {r7}
-	msr CPSR_c, #0xD3 /* supervisor mode */
+	pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,fp,ip,lr}    /* r0 = *(sp) ... lr = *(sp+13*4) */   /* [2] ... [2+13] */     /* system mode bank */
+	pop {r7}                                            /* [+1][0] */
+	msr CPSR_c, #0xD3                                   /* supervisor mode */
 
-	movs pc, lr
+	movs pc, lr                                         /* execute user task */   /* exception return -> changes mode , cpsr = spsr */
