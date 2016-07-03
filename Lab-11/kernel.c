@@ -5,38 +5,46 @@
 
 void *memcpy(void *dest, const void *src, size_t n)
 {
+//{{{    
 	char *d = dest;
 	const char *s = src;
 	size_t i;
 	for (i = 0; i < n; i++)
 		d[i] = s[i];
 	return d;
+//}}}    
 }
 
 int strcmp(const char *a, const char *b)
 {
+//{{{    
 	int r = 0;
 	while (!r && *a && *b)
 		r = (*a++) - (*b++);
 	return (*a) - (*b);
+//}}}    
 }
 
 size_t strlen(const char *s)
 {
+//{{{    
 	size_t r = 0;
 	while (*s++)
 		r++;
 	return r;
+//}}}    
 }
 
 void puts(char *s)
 {
+//{{{    
 	while (*s) {
 		while (*(UART0 + UARTFR) & UARTFR_TXFF)
 			/* wait */ ;
 		*UART0 = *s;
 		s++;
 	}
+//}}}    
 }
 
 #define STACK_SIZE 1024 /* Size of task stacks in words */
@@ -65,6 +73,7 @@ void puts(char *s)
 #define PATH_SERVER_NAME "/sys/pathserver"
 void pathserver()
 {
+//{{{    
 	char paths[PIPE_LIMIT - TASK_LIMIT - 3][PATH_MAX];
 	int npaths = 0;
 	int i = 0;
@@ -100,10 +109,12 @@ void pathserver()
 			}
 		}
 	}
+//}}}    
 }
 
 int mkfifo(const char *pathname, int mode)
 {
+//{{{    
 	size_t plen = strlen(pathname)+1;
 	char buf[4+4+PATH_MAX];
 	(void) mode;
@@ -114,10 +125,12 @@ int mkfifo(const char *pathname, int mode)
 	write(PATHSERVER_FD, buf, 4 + 4 + plen);
 
 	return 0;
+//}}}    
 }
 
 int open(const char *pathname, int flags)
 {
+//{{{    
 	unsigned int replyfd = getpid() + 3;
 	size_t plen = strlen(pathname) + 1;
 	unsigned int fd = -1;
@@ -131,10 +144,12 @@ int open(const char *pathname, int flags)
 	read(replyfd, &fd, 4);
 
 	return fd;
+//}}}
 }
 
 void serialout(volatile unsigned int* uart, unsigned int intr)
 {
+//{{{    
 	int fd;
 	char c;
 	int doread = 1;
@@ -155,10 +170,12 @@ void serialout(volatile unsigned int* uart, unsigned int intr)
 		interrupt_wait(intr);
 		*(uart + UARTICR) = UARTICR_TXIC;
 	}
+//}}}    
 }
 
 void serialin(volatile unsigned int* uart, unsigned int intr)
 {
+//{{{    
 	int fd;
 	char c;
 	mkfifo("/dev/tty0/in", 0);
@@ -175,20 +192,24 @@ void serialin(volatile unsigned int* uart, unsigned int intr)
 			write(fd, &c, 1);
 		}
 	}
+//}}}    
 }
 
 void greeting()
 {
+//{{{    
 	int fdout = open("/dev/tty0/out", 0);
 	char *string = "Hello, World!\n";
 	while (*string) {
 		write(fdout, string, 1);
 		string++;
 	}
+//}}}    
 }
 
 void echo()
 {
+//{{{    
 	int fdout, fdin;
 	char c;
 	fdout = open("/dev/tty0/out", 0);
@@ -198,6 +219,7 @@ void echo()
 		read(fdin, &c, 1);
 		write(fdout, &c, 1);
 	}
+//}}}    
 }
 
 void first()
@@ -205,6 +227,7 @@ void first()
 	if (!fork()) pathserver();
 	if (!fork()) serialout(UART0, PIC_UART0);
 	if (!fork()) serialin(UART0, PIC_UART0);
+    //
 	if (!fork()) greeting();
 	if (!fork()) echo();
 
@@ -249,6 +272,7 @@ void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct 
 
 void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
+//{{{    
 	task[-1] = TASK_READY;
 	/* If the fd is invalid, or trying to read too much  */
 	if (task[2+0] > PIPE_LIMIT || task[2+2] > PIPE_BUF) {
@@ -274,10 +298,12 @@ void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct p
 					_write(tasks[i], tasks, task_count, pipes);
 		}
 	}
+//}}}    
 }
 
 void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
+//{{{    
 	/* If the fd is invalid or the write would be non-atomic */
 	if (task[2 + 0] > PIPE_LIMIT || task[2 + 2] > PIPE_BUF) {
 		task[2 + 0] = -1;
@@ -302,12 +328,13 @@ void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct 
 					_read(tasks[i], tasks, task_count, pipes);
 		}
 	}
+//}}}    
 }
 
 int main()
 {
 	unsigned int stacks[TASK_LIMIT][STACK_SIZE];
-	unsigned int *tasks[TASK_LIMIT];
+	unsigned int *tasks[TASK_LIMIT];                            // task structure, point to head of a hidden task structure as r0
 	struct pipe_ringbuffer pipes[PIPE_LIMIT];
 	size_t task_count = 0;
 	size_t current_task = 0;
@@ -319,16 +346,17 @@ int main()
 	*(TIMER0 + TIMER_CONTROL) = TIMER_EN | TIMER_PERIODIC
 	                            | TIMER_32BIT | TIMER_INTEN;
 
-	tasks[task_count] = init_task(stacks[task_count], &first);
+	tasks[task_count] = init_task(stacks[task_count], &first);  // register first() in 1st task
 	task_count++;
 
 	/* Initialize all pipes */
 	for (i = 0; i < PIPE_LIMIT; i++)
 		pipes[i].start = pipes[i].end = 0;
 
-	while (1) {
-		tasks[current_task] = activate(tasks[current_task]);
-		tasks[current_task][-1] = TASK_READY;
+	while (1) { // this is kernel , task manager
+		tasks[current_task] = activate(tasks[current_task]);    // parameter as r0, do the task -> implicit system calls , return sp offset
+        // <-- kernel state lr return
+		tasks[current_task][-1] = TASK_READY;            
 
 		switch (tasks[current_task][2 + 7]) {
 		case 0x1: /* fork */
@@ -347,7 +375,7 @@ int main()
 				       used * sizeof(*tasks[current_task]));
 				/* Set return values in each process */
 				tasks[current_task][2 + 0] = task_count;
-				tasks[task_count][2 + 0] = 0;
+				tasks[task_count][2 + 0] = 0;               // for !fork() = r0
 				/* There is now one more task */
 				task_count++;
 			}

@@ -2,7 +2,7 @@
 fork:
 	push {r7}
 	mov r7, #0x1
-	svc 0
+	svc 0                   /* -> svc_entry */
 	bx lr
 .global getpid
 getpid:
