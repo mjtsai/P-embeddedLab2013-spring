@@ -346,7 +346,7 @@ int main()
 	*(TIMER0 + TIMER_CONTROL) = TIMER_EN | TIMER_PERIODIC
 	                            | TIMER_32BIT | TIMER_INTEN;
 
-	tasks[task_count] = init_task(stacks[task_count], &first);  // register first() in 1st task
+	tasks[task_count] = init_task(stacks[task_count], &first);  // register first() in 1st task , return stack head
 	task_count++;
 
 	/* Initialize all pipes */
@@ -354,7 +354,7 @@ int main()
 		pipes[i].start = pipes[i].end = 0;
 
 	while (1) { // this is kernel , task manager
-		tasks[current_task] = activate(tasks[current_task]);    // parameter as r0, do the task -> implicit system calls , return sp offset
+		tasks[current_task] = activate(tasks[current_task]);    // parameter as r0, do the task -> implicit system calls , return stack head
         // <-- kernel state lr return
 		tasks[current_task][-1] = TASK_READY;            
 

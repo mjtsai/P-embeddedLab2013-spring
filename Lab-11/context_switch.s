@@ -28,7 +28,7 @@ irq_entry:
 	bx lr
 
 .global svc_entry
-svc_entry:
+svc_entry:      /*push r7 previous svc call*/
 	/* save user state */
 	msr CPSR_c, #0xDF /* System mode */
 	push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,fp,ip,lr}   /* save syscall r7 */ /* lr = STACK_SIZE-4 ... r0 = STACK_SIZE-13*4 */
@@ -47,7 +47,7 @@ svc_entry:
 activate:
 	/* save kernel state */
 	mov ip, sp                                          /* Intra-Procedure-call scratch register */
-	push {r4,r5,r6,r7,r8,r9,r10,fp,ip,lr}
+	push {r4,r5,r6,r7,r8,r9,r10,fp,ip,lr}               /* <- */
 
 	ldmfd r0!, {ip,lr}                                  /* mode = ip = *(r0) , function pointer = lr = *(r0+4) , r0+=8 */   /* [0] [1] */ /* SVC bank */
 	msr SPSR, ip
