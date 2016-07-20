@@ -55,7 +55,7 @@ activate:
 	msr CPSR_c, #0xDF                                   /* system mode */
 	mov sp, r0                                          /* pass stack top to r0 to easily save all registers to data structure */
 	pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,fp,ip,lr}    /* r0 = *(sp) ... lr = *(sp+13*4) */   /* [2] ... [2+13] -> STACK_SIZE */     /* system mode bank */
-	pop {r7}                                            /* *(sp) , sp++ */
+	pop {r7}                                            /* *(sp) , sp++, dummy, to pop syscall id used within r7 */
 	msr CPSR_c, #0xD3                                   /* supervisor mode */
 
 	movs pc, lr                                         /* execute user task */   /* exception return -> changes mode , cpsr = spsr */

@@ -3,6 +3,19 @@
 #include "versatilepb.h"
 #include "asm.h"
 
+#define portSTACK_TYPE  unsigned int
+#define portBASE_TYPE   int
+typedef struct tskTaskControlBlock
+{
+	volatile portSTACK_TYPE	*pxTopOfStack   ;	/* should be r0 , current pointer */	
+	unsigned portBASE_TYPE	uxPriority      ;			
+	portSTACK_TYPE			*pxStack        ;	/* a single stack start */
+    volatile portSTACK_TYPE state           ;
+
+} tskTCB;
+
+
+
 void *memcpy(void *dest, const void *src, size_t n)
 {
 /*{{{*/    
@@ -262,7 +275,7 @@ struct pipe_ringbuffer {
 #define PIPE_POP(pipe, v)  RB_POP((pipe), PIPE_BUF, (v))
 #define PIPE_LEN(pipe)     (RB_LEN((pipe), PIPE_BUF))
 
-unsigned int *init_task(unsigned int *stack, void (*start)())
+portSTACK_TYPE *init_task(portSTACK_TYPE *stack, void (*start)())
 {
 	stack += STACK_SIZE - 16; /* End of stack, minus what we're about to push */
 	stack[0] = 0x10; /* User mode, interrupts on */
@@ -270,65 +283,65 @@ unsigned int *init_task(unsigned int *stack, void (*start)())
 	return stack;
 }
 
-void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes);
-void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes);
+void _read(tskTCB *task, tskTCB *tasks, size_t task_count, struct pipe_ringbuffer *pipes);
+void _write(tskTCB *task, tskTCB *tasks, size_t task_count, struct pipe_ringbuffer *pipes);
 
-void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes)
+void _read(tskTCB *task, tskTCB *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
 /*{{{*/    
-	task[-1] = TASK_READY;
+	task->state = TASK_READY;
 	/* If the fd is invalid, or trying to read too much  */
-	if (task[2+0] > PIPE_LIMIT || task[2+2] > PIPE_BUF) {
-		task[2+0] = -1;
+	if (task->pxTopOfStack[2+0] > PIPE_LIMIT || task->pxTopOfStack[2+2] > PIPE_BUF) {
+		task->pxTopOfStack[2+0] = -1;
 	}
 	else {
-		struct pipe_ringbuffer *pipe = &pipes[task[2+0]];
-		if ((size_t)PIPE_LEN(*pipe) < task[2+2]) {
+		struct pipe_ringbuffer *pipe = &pipes[task->pxTopOfStack[2+0]];
+		if ((size_t)PIPE_LEN(*pipe) < task->pxTopOfStack[2+2]) {
 			/* Trying to read more than there is: block */
-			task[-1] = TASK_WAIT_READ;
+			task->state = TASK_WAIT_READ;
 		}
 		else {
 			size_t i;
-			char *buf = (char*)task[2+1];
+			char *buf = (char*)task->pxTopOfStack[2+1];
 			/* Copy data into buf */
-			for (i = 0; i < task[2+2]; i++) {
+			for (i = 0; i < task->pxTopOfStack[2+2]; i++) {
 				PIPE_POP(*pipe, buf[i]);
 			}
 
 			/* Unblock any waiting writes */
 			for (i = 0; i < task_count; i++)
-				if (tasks[i][-1] == TASK_WAIT_WRITE)
-					_write(tasks[i], tasks, task_count, pipes);
+				if (tasks[i].state == TASK_WAIT_WRITE)
+					_write(&tasks[i], tasks, task_count, pipes);
 		}
 	}
 /*}}}*/    
 }
 
-void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes)
+void _write(tskTCB *task, tskTCB *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
 /*{{{*/    
 	/* If the fd is invalid or the write would be non-atomic */
-	if (task[2 + 0] > PIPE_LIMIT || task[2 + 2] > PIPE_BUF) {
-		task[2 + 0] = -1;
+	if (task->pxTopOfStack[2 + 0] > PIPE_LIMIT || task->pxTopOfStack[2 + 2] > PIPE_BUF) {
+		task->pxTopOfStack[2 + 0] = -1;
 	}
 	else {
-		struct pipe_ringbuffer *pipe = &pipes[task[2 + 0]];
+		struct pipe_ringbuffer *pipe = &pipes[task->pxTopOfStack[2 + 0]];
 
-		if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) < task[2 + 2]) {
+		if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) < task->pxTopOfStack[2 + 2]) {
 			/* Trying to write more than we have space for: block */
-			task[-1] = TASK_WAIT_WRITE;
+			task->state = TASK_WAIT_WRITE;
 		}
 		else {
 			size_t i;
-			const char *buf = (const char*)task[2+1];
+			const char *buf = (const char*)task->pxTopOfStack[2+1];
 			/* Copy data into pipe */
-			for (i = 0; i < task[2 + 2]; i++)
+			for (i = 0; i < task->pxTopOfStack[2 + 2]; i++)
 				PIPE_PUSH(*pipe,buf[i]);
 
 			/* Unblock any waiting reads */
 			for (i = 0; i < task_count; i++)
-				if (tasks[i][-1] == TASK_WAIT_READ)
-					_read(tasks[i], tasks, task_count, pipes);
+				if (tasks[i].state == TASK_WAIT_READ)
+					_read(&tasks[i], tasks, task_count, pipes);
 		}
 	}
 /*}}}*/    
@@ -336,8 +349,8 @@ void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct 
 
 int main()
 {
-	unsigned int stacks[TASK_LIMIT][STACK_SIZE];
-	unsigned int *tasks[TASK_LIMIT];                            /* task structure, point to head of a hidden task structure as r0 */
+	unsigned int    stacks[TASK_LIMIT][STACK_SIZE];
+	tskTCB          tasks[TASK_LIMIT];                            /* task structure, point to head of a hidden task structure as r0 */
 	struct pipe_ringbuffer pipes[PIPE_LIMIT];
 	size_t task_count = 0;
 	size_t current_task = 0;
@@ -349,7 +362,8 @@ int main()
 	*(TIMER0 + TIMER_CONTROL) = TIMER_EN | TIMER_PERIODIC
 	                            | TIMER_32BIT | TIMER_INTEN;
 
-	tasks[task_count] = init_task(stacks[task_count], &first);  /* register first() in 1st task , return stack head */
+    tasks[task_count].pxStack = stacks[task_count];
+	tasks[task_count].pxTopOfStack = init_task(tasks[task_count].pxStack, &first);  /* register first() in 1st task , return stack head */
 	task_count++;
 
 	/* Initialize all pipes */
@@ -357,50 +371,51 @@ int main()
 		pipes[i].start = pipes[i].end = 0;
 
 	while (1) { /* this is kernel , task manager */
-		tasks[current_task] = activate(tasks[current_task]);    /* parameter as r0, do the task -> implicit system calls , return stack head */
+		tasks[current_task].pxTopOfStack = activate(tasks[current_task].pxTopOfStack);    /* parameter as r0, do the task -> implicit system calls , return stack head */
         /* <-- kernel state lr return */
-		tasks[current_task][-1] = TASK_READY;            
+		tasks[current_task].state = TASK_READY;            
 
-		switch (tasks[current_task][2 + 7]) {
+		switch (tasks[current_task].pxTopOfStack[2 + 7]) {
 		case 0x1: /* fork */
 			if (task_count == TASK_LIMIT) {
 				/* Cannot create a new task, return error */
-				tasks[current_task][2 + 0] = -1;
+				tasks[current_task].pxTopOfStack[2 + 0] = -1;
 			}
 			else {
 				/* Compute how much of the stack is used */
 				size_t used = stacks[current_task] + STACK_SIZE
-					      - tasks[current_task];
+					      - tasks[current_task].pxTopOfStack;
 				/* New stack is END - used */
-				tasks[task_count] = stacks[task_count] + STACK_SIZE - used;
+				tasks[task_count].pxTopOfStack = stacks[task_count] + STACK_SIZE - used;
+                tasks[task_count].pxStack = stacks[task_count];
 				/* Copy only the used part of the stack */
-				memcpy(tasks[task_count], tasks[current_task],
-				       used * sizeof(*tasks[current_task]));
+				memcpy(tasks[task_count].pxTopOfStack, tasks[current_task].pxTopOfStack,
+				       used * sizeof(*tasks[current_task].pxTopOfStack));
 				/* Set return values in each process */
-				tasks[current_task][2 + 0] = task_count;
-				tasks[task_count][2 + 0] = 0;               /* for !fork() = r0 */
+				tasks[current_task].pxTopOfStack[2 + 0] = task_count;
+				tasks[task_count].pxTopOfStack[2 + 0] = 0;               /* for !fork() = r0 */
 				/* There is now one more task */
 				task_count++;
 			}
 			break;
 		case 0x2: /* getpid */
-			tasks[current_task][2 + 0] = current_task;
+			tasks[current_task].pxTopOfStack[2 + 0] = current_task;
 			break;
 		case 0x3: /* write */
-			_write(tasks[current_task], tasks, task_count, pipes);
+			_write(&tasks[current_task], tasks, task_count, pipes);
 			break;
 		case 0x4: /* read */
-			_read(tasks[current_task], tasks, task_count, pipes);
+			_read(&tasks[current_task], tasks, task_count, pipes);
 			break;
 		case 0x5: /* interrupt_wait */
 			/* Enable interrupt */
-			*(PIC + VIC_INTENABLE) = tasks[current_task][2 + 0];
+			*(PIC + VIC_INTENABLE) = tasks[current_task].pxTopOfStack[2 + 0];
 			/* Block task waiting for interrupt to happen */
-			tasks[current_task][-1] = TASK_WAIT_INTR;
+			tasks[current_task].state = TASK_WAIT_INTR;
 			break;
 		default: /* Catch all interrupts */
-			if ((int)tasks[current_task][2 + 7] < 0) {
-				unsigned int intr = (1 << -tasks[current_task][2+7]);
+			if ((int)tasks[current_task].pxTopOfStack[2 + 7] < 0) {
+				unsigned int intr = (1 << -tasks[current_task].pxTopOfStack[2+7]);
 
 				if (intr == PIC_TIMER01) {
 					/* Never disable timer. We need it for pre-emption */
@@ -414,14 +429,14 @@ int main()
 				}
 				/* Unblock any waiting tasks */
 				for (i = 0; i < task_count; i++)
-					if (tasks[i][-1] == TASK_WAIT_INTR && tasks[i][2+0] == intr)
-						tasks[i][-1] = TASK_READY;
+					if (tasks[i].state == TASK_WAIT_INTR && tasks[i].pxTopOfStack[2+0] == intr)
+						tasks[i].state = TASK_READY;
 			}
 		}
 
 		/* Select next TASK_READY task */
 		while (TASK_READY != tasks[current_task =
-			(current_task+1 >= task_count ? 0 : current_task+1)][-1]);
+			(current_task+1 >= task_count ? 0 : current_task+1)].state);
 	}
 
 	return 0;
