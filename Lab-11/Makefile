@@ -7,7 +7,7 @@ CFLAGS = -ansi -pedantic \
 	 -Wall -Wextra \
 	 -march=armv5te -msoft-float -fPIC \
 	 -mapcs-frame -marm \
-	 -ffreestanding
+	 -ffreestanding -g
 LDFLAGS = -N -Ttext=0x10000
 
 kernel.elf: lowlevel.o kernel.o context_switch.o syscalls.o

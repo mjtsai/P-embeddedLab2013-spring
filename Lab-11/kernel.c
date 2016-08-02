@@ -233,7 +233,7 @@ void echo()
 	fdin = open("/dev/tty0/in", 0);
 
 	while (1) {
-		read(fdin, &c, 1);
+		read(fdin, &c, 1);          /* r0, r1, r2 */
 		write(fdout, &c, 1);
 	}
 /*}}}*/    
@@ -241,11 +241,11 @@ void echo()
 
 void first()
 {
-	if (!fork()) pathserver();
-	if (!fork()) serialout(UART0, PIC_UART0);
-	if (!fork()) serialin(UART0, PIC_UART0);
-	if (!fork()) greeting();
-	if (!fork()) echo();
+	if (!fork(0)) pathserver();
+	if (!fork(0)) serialout(UART0, PIC_UART0);
+	if (!fork(0)) serialin(UART0, PIC_UART0);
+	if (!fork(0)) greeting();
+	if (!fork(0)) echo();
 
 	while(1);
 }
@@ -351,10 +351,11 @@ int main()
 {
 	unsigned int    stacks[TASK_LIMIT][STACK_SIZE];
 	tskTCB          tasks[TASK_LIMIT];                            /* task structure, point to head of a hidden task structure as r0 */
-	struct pipe_ringbuffer pipes[PIPE_LIMIT];
-	size_t task_count = 0;
-	size_t current_task = 0;
-	size_t i;
+	struct          pipe_ringbuffer pipes[PIPE_LIMIT];
+	size_t          task_count = 0;
+	size_t          current_task = 0;
+	size_t          i;
+    int             max_priority = 0, current_priority = 0;
 
 	*(PIC + VIC_INTENABLE) = PIC_TIMER01;
 
@@ -364,6 +365,7 @@ int main()
 
     tasks[task_count].pxStack = stacks[task_count];
 	tasks[task_count].pxTopOfStack = init_task(tasks[task_count].pxStack, &first);  /* register first() in 1st task , return stack head */
+    tasks[task_count].uxPriority = 0;
 	task_count++;
 
 	/* Initialize all pipes */
@@ -391,6 +393,8 @@ int main()
 				/* Copy only the used part of the stack */
 				memcpy(tasks[task_count].pxTopOfStack, tasks[current_task].pxTopOfStack,
 				       used * sizeof(*tasks[current_task].pxTopOfStack));
+                tasks[task_count].uxPriority = tasks[current_task].pxTopOfStack[2 + 0];     /* pass priority */
+                if(tasks[task_count].uxPriority > max_priority) max_priority = tasks[task_count].uxPriority;
 				/* Set return values in each process */
 				tasks[current_task].pxTopOfStack[2 + 0] = task_count;
 				tasks[task_count].pxTopOfStack[2 + 0] = 0;               /* for !fork() = r0 */
@@ -435,8 +439,20 @@ int main()
 		}
 
 		/* Select next TASK_READY task */
-		while (TASK_READY != tasks[current_task =
-			(current_task+1 >= task_count ? 0 : current_task+1)].state);
+/*		while (TASK_READY != tasks[current_task = (current_task+1 >= task_count ? 0 : current_task+1)].state); */
+
+        current_priority = max_priority;
+        while(current_priority >= 0){
+    		for(i=0; i<task_count; i++){
+                current_task = (current_task+1 >= task_count ? 0 : current_task+1);                
+                if( TASK_READY == tasks[current_task].state && tasks[current_task].uxPriority == current_priority ){
+                    break;
+                }
+            }
+            if(i!=task_count) break;
+            current_priority--;
+        }
+        
 	}
 
 	return 0;
