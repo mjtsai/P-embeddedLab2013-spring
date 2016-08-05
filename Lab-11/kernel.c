@@ -10,8 +10,9 @@ typedef struct tskTaskControlBlock
 	volatile portSTACK_TYPE	*pxTopOfStack   ;	/* should be r0 , current pointer */	
 	unsigned portBASE_TYPE	uxPriority      ;			
 	portSTACK_TYPE			*pxStack        ;	/* a single stack start */
-    volatile portSTACK_TYPE state           ;
-
+    portSTACK_TYPE          state           ;
+    size_t                  tickToWake      ;
+    int                     isOverflowTick  ;
 } tskTCB;
 
 
@@ -73,6 +74,7 @@ void puts(char *s)
 #define TASK_WAIT_READ  1
 #define TASK_WAIT_WRITE 2
 #define TASK_WAIT_INTR  3
+#define TASK_WAIT_DELAY 4
 
 /* 
  * pathserver assumes that all files are FIFOs that were registered
@@ -224,6 +226,18 @@ void greeting()
 /*}}}*/    
 }
 
+void test_delay()
+{
+/*{{{*/    
+	int fdout = open("/dev/tty0/out", 0);
+	char *string = "Delay 100\n";
+	while (1) {
+		write(fdout, string, strlen(string) );
+		delay(100);
+	}
+/*}}}*/    
+}
+
 void echo()
 {
 /*{{{*/    
@@ -244,6 +258,8 @@ void first()
 	if (!fork(0)) pathserver();
 	if (!fork(0)) serialout(UART0, PIC_UART0);
 	if (!fork(0)) serialin(UART0, PIC_UART0);
+    if (!fork(0)) test_delay();
+    
 	if (!fork(0)) greeting();
 	if (!fork(0)) echo();
 
@@ -356,6 +372,7 @@ int main()
 	size_t          current_task = 0;
 	size_t          i;
     int             max_priority = 0, current_priority = 0;
+    size_t          sys_tick = 0;
 
 	*(PIC + VIC_INTENABLE) = PIC_TIMER01;
 
@@ -366,6 +383,7 @@ int main()
     tasks[task_count].pxStack = stacks[task_count];
 	tasks[task_count].pxTopOfStack = init_task(tasks[task_count].pxStack, &first);  /* register first() in 1st task , return stack head */
     tasks[task_count].uxPriority = 0;
+    tasks[task_count].isOverflowTick = 0;
 	task_count++;
 
 	/* Initialize all pipes */
@@ -395,6 +413,7 @@ int main()
 				       used * sizeof(*tasks[current_task].pxTopOfStack));
                 tasks[task_count].uxPriority = tasks[current_task].pxTopOfStack[2 + 0];     /* pass priority */
                 if(tasks[task_count].uxPriority > max_priority) max_priority = tasks[task_count].uxPriority;
+                tasks[task_count].isOverflowTick = 0;
 				/* Set return values in each process */
 				tasks[current_task].pxTopOfStack[2 + 0] = task_count;
 				tasks[task_count].pxTopOfStack[2 + 0] = 0;               /* for !fork() = r0 */
@@ -417,11 +436,35 @@ int main()
 			/* Block task waiting for interrupt to happen */
 			tasks[current_task].state = TASK_WAIT_INTR;
 			break;
+        case 0x6: /* set priority */
+            tasks[current_task].uxPriority = tasks[current_task].pxTopOfStack[2 + 2];
+            break;
+        case 0x7: /* delay */
+            /* set target tick */
+            tasks[current_task].tickToWake = sys_tick + tasks[current_task].pxTopOfStack[2 + 0];
+            if(tasks[current_task].tickToWake < sys_tick){
+                tasks[current_task].isOverflowTick = 1;
+            }
+            tasks[current_task].state = TASK_WAIT_DELAY;
+            break;
 		default: /* Catch all interrupts */
 			if ((int)tasks[current_task].pxTopOfStack[2 + 7] < 0) {
 				unsigned int intr = (1 << -tasks[current_task].pxTopOfStack[2+7]);
 
 				if (intr == PIC_TIMER01) {
+                    /* increment tick */
+                    sys_tick++;
+                    /* check resume */
+				    for (i = 0; i < task_count; i++){                           /* slow */
+				    	if (tasks[i].state == TASK_WAIT_DELAY){
+                            if(sys_tick == 0 && tasks[i].isOverflowTick){
+                                tasks[i].isOverflowTick = 0;
+                            }
+                            if(!tasks[i].isOverflowTick && sys_tick > tasks[i].tickToWake){
+                                tasks[i].state = TASK_READY;
+                            }
+                        }
+                    }
 					/* Never disable timer. We need it for pre-emption */
 					if (*(TIMER0 + TIMER_MIS)) { /* Timer0 went off */
 						*(TIMER0 + TIMER_INTCLR) = 1; /* Clear interrupt */

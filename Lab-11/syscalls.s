@@ -28,3 +28,15 @@ interrupt_wait:
 	mov r7, #0x5
 	svc 0
 	bx lr
+.global set_priority
+set_priority:
+	push {r7}
+	mov r7, #0x6
+	svc 0
+	bx lr    
+.global delay
+delay:
+	push {r7}
+	mov r7, #0x7
+	svc 0
+	bx lr    
