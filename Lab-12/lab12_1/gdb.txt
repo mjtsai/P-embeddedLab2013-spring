@@ -1,0 +1,149 @@
+
+Breakpoint 5, serial_readwrite_task (pvParameters=0x0) at main.c:167
+167			curr_char = 4;
+1: xTaskGetTickCount() = 0
+#0  serial_readwrite_task (pvParameters=0x0) at main.c:167
+#1  0x00000000 in ?? ()
+
+Breakpoint 2, led_flash_task (pvParameters=0x0) at main.c:97
+97			GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
+1: xTaskGetTickCount() = 0
+#0  led_flash_task (pvParameters=0x0) at main.c:97
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 1
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x566c "Hello 1\n\r", delay=200) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 1
+#0  queue_str_task (str=0x566c "Hello 1\n\r", delay=200) at main.c:138
+#1  0x00005094 in queue_str_task1 (pvParameters=0x0) at main.c:148
+#2  0x00000000 in ?? ()
+
+Breakpoint 3, rs232_xmit_msg_task (pvParameters=0x0) at main.c:113
+113			while (!xQueueReceive(serial_str_queue, &msg, portMAX_DELAY));
+1: xTaskGetTickCount() = 2
+#0  rs232_xmit_msg_task (pvParameters=0x0) at main.c:113
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 51
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, led_flash_task (pvParameters=0x0) at main.c:97
+97			GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
+1: xTaskGetTickCount() = 100
+#0  led_flash_task (pvParameters=0x0) at main.c:97
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 101
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 151
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, led_flash_task (pvParameters=0x0) at main.c:97
+97			GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
+1: xTaskGetTickCount() = 200
+#0  led_flash_task (pvParameters=0x0) at main.c:97
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 201
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x566c "Hello 1\n\r", delay=200) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 202
+#0  queue_str_task (str=0x566c "Hello 1\n\r", delay=200) at main.c:138
+#1  0x00005094 in queue_str_task1 (pvParameters=0x0) at main.c:148
+#2  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 251
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, led_flash_task (pvParameters=0x0) at main.c:97
+97			GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
+1: xTaskGetTickCount() = 300
+#0  led_flash_task (pvParameters=0x0) at main.c:97
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 301
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 351
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, led_flash_task (pvParameters=0x0) at main.c:97
+97			GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
+1: xTaskGetTickCount() = 400
+#0  led_flash_task (pvParameters=0x0) at main.c:97
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 401
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x566c "Hello 1\n\r", delay=200) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 402
+#0  queue_str_task (str=0x566c "Hello 1\n\r", delay=200) at main.c:138
+#1  0x00005094 in queue_str_task1 (pvParameters=0x0) at main.c:148
+#2  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 451
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, led_flash_task (pvParameters=0x0) at main.c:97
+97			GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
+1: xTaskGetTickCount() = 500
+#0  led_flash_task (pvParameters=0x0) at main.c:97
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+138			while (!xQueueSendToBack(serial_str_queue, &msg,
+1: xTaskGetTickCount() = 501
+#0  queue_str_task (str=0x5678 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x000050b4 in queue_str_task2 (pvParameters=0x0) at main.c:153
+#2  0x00000000 in ?? ()
+gdbscript:17: Error in sourced command file:
+Remote connection closed
+(gdb) 1470927097:223371 quit
