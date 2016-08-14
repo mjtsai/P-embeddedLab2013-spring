@@ -5,139 +5,21 @@ $end
 $var wire 1 queue_str_task2 queue_str_task2 $end
 $var wire 1 serial_readwrite_task serial_readwrite_task $end
 $var wire 1 queue_str_task1 queue_str_task1 $end
-$var wire 1 rs232_xmit_msg_task rs232_xmit_msg_task $end
-$var wire 1 led_flash_task led_flash_task $end
 $dumpvars
 #0
 b0 queue_str_task2 
 b1 serial_readwrite_task 
 b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
 #100
 b0 queue_str_task2 
-b0 serial_readwrite_task 
+b1 serial_readwrite_task 
 b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b1 led_flash_task 
 #1000
 b1 queue_str_task2 
 b0 serial_readwrite_task 
 b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#1100
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b1 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
 #2000
 b0 queue_str_task2 
 b0 serial_readwrite_task 
-b0 queue_str_task1 
-b1 rs232_xmit_msg_task 
-b0 led_flash_task 
-#51000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#100000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b1 led_flash_task 
-#101000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#151000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#200000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b1 led_flash_task 
-#201000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#202000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
 b1 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#251000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#300000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b1 led_flash_task 
-#301000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#351000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#400000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b1 led_flash_task 
-#401000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#402000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b1 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#451000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
-#500000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b1 led_flash_task 
-#501000
-b1 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b0 rs232_xmit_msg_task 
-b0 led_flash_task 
 $end

@@ -113,5 +113,18 @@ configKERNEL_INTERRUPT_PRIORITY setting.  Here 15 corresponds to the lowest
 NVIC value of 255. */
 #define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	15
 
+
+
+/***** lab *****/
+#define traceSTART()                                    my_traceSTART()
+#define traceEND()                                      my_traceEND()
+#define traceTASK_SWITCHED_IN()                         my_traceTASK_SWITCHED_IN()
+#define traceTASK_SWITCHED_OUT()                        my_traceTASK_SWITCHED_OUT()
+#define traceGIVE_MUTEX_RECURSIVE( pxMutex )            my_traceGIVE_MUTEX_RECURSIVE( pxMutex )
+#define traceTAKE_MUTEX_RECURSIVE( pxMutex )            my_traceTAKE_MUTEX_RECURSIVE( pxMutex )
+
+
+
+
 #endif /* FREERTOS_CONFIG_H */
 
