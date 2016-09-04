@@ -7,8 +7,7 @@
 #include "queue.h"
 #include "semphr.h"
 #include <string.h>
-#include "debug_support.h"
-
+#include <stdio.h>
 
 void my_traceSTART();
 void my_traceEND();
@@ -86,6 +85,8 @@ void send_byte(char ch)
 	/* Send the byte and enable the transmit interrupt (it is disabled by
 	 * the interrupt).
 	 */
+
+    printf("%c", ch);
 	USART_SendData(USART2, ch);
 	USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
 }
@@ -282,19 +283,19 @@ void my_traceEND(void){
 
 
 void my_traceTASK_SWITCHED_IN(void){
-//    printf("switch in\n");
+    printf("switch in\n");
 
-    USART_SendData(USART2,  's' );
-	USART_SendData(USART2,  'w' );
-	USART_SendData(USART2,  'i' );
-	USART_SendData(USART2,  't' );
-	USART_SendData(USART2,  'c' );
-	USART_SendData(USART2,  'h' );
-	USART_SendData(USART2,  ' ' );
-	USART_SendData(USART2,  'i' );
-	USART_SendData(USART2,  'n' );
-	USART_SendData(USART2,  '\n' );
-	USART_SendData(USART2,  '\r' );
+//    USART_SendData(USART2,  's' );
+//	USART_SendData(USART2,  'w' );
+//	USART_SendData(USART2,  'i' );
+//	USART_SendData(USART2,  't' );
+//	USART_SendData(USART2,  'c' );
+//	USART_SendData(USART2,  'h' );
+//	USART_SendData(USART2,  ' ' );
+//	USART_SendData(USART2,  'i' );
+//	USART_SendData(USART2,  'n' );
+//	USART_SendData(USART2,  '\n' );
+//	USART_SendData(USART2,  '\r' );
     
 
 }
