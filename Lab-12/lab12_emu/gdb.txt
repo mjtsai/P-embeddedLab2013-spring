@@ -1,0 +1,66 @@
+
+Breakpoint 5, serial_readwrite_task (pvParameters=0x0) at main.c:174
+174		strcpy(msg.str, "Got:");
+1: xTaskGetTickCount() = 0
+#0  serial_readwrite_task (pvParameters=0x0) at main.c:174
+#1  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:98
+98		while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
+1: xTaskGetTickCount() = 0
+#0  receive_byte () at main.c:98
+#1  0x080052e0 in serial_readwrite_task (pvParameters=0x0) at main.c:182
+#2  0x00000000 in ?? ()
+
+Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:110
+110			vTaskDelay(100);
+1: xTaskGetTickCount() = 1
+#0  led_flash_task (pvParameters=0x0) at main.c:110
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x8005b7c "Hello 2\n\r", delay=50) at main.c:144
+144		strcpy(msg.str, str);
+1: xTaskGetTickCount() = 2
+#0  queue_str_task (str=0x8005b7c "Hello 2\n\r", delay=50) at main.c:144
+#1  0x080052a8 in queue_str_task2 (pvParameters=0x0) at main.c:163
+#2  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x8005b70 "Hello 1\n\r", delay=200) at main.c:144
+144		strcpy(msg.str, str);
+1: xTaskGetTickCount() = 3
+#0  queue_str_task (str=0x8005b70 "Hello 1\n\r", delay=200) at main.c:144
+#1  0x08005288 in queue_str_task1 (pvParameters=0x0) at main.c:158
+#2  0x00000000 in ?? ()
+
+Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:110
+110			vTaskDelay(100);
+1: xTaskGetTickCount() = 101
+#0  led_flash_task (pvParameters=0x0) at main.c:110
+#1  0x00000000 in ?? ()
+
+Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:110
+110			vTaskDelay(100);
+1: xTaskGetTickCount() = 201
+#0  led_flash_task (pvParameters=0x0) at main.c:110
+#1  0x00000000 in ?? ()
+
+Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:110
+110			vTaskDelay(100);
+1: xTaskGetTickCount() = 301
+#0  led_flash_task (pvParameters=0x0) at main.c:110
+#1  0x00000000 in ?? ()
+
+Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:110
+110			vTaskDelay(100);
+1: xTaskGetTickCount() = 401
+#0  led_flash_task (pvParameters=0x0) at main.c:110
+#1  0x00000000 in ?? ()
+
+Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:110
+110			vTaskDelay(100);
+1: xTaskGetTickCount() = 501
+#0  led_flash_task (pvParameters=0x0) at main.c:110
+#1  0x00000000 in ?? ()
+gdbscript:17: Error in sourced command file:
+Remote connection closed
+(gdb) 1472969370:375978 quit
