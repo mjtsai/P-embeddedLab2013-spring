@@ -14,9 +14,12 @@ FREERTOS_SRC = $(LIB_PATH)/FreeRTOS
 FREERTOS_INC = $(FREERTOS_SRC)/include/                                       
 FREERTOS_PORT_INC = $(FREERTOS_SRC)/portable/GCC/ARM_$(ARCH)/
 
+GRASP_SRC = grasp_recorder/src
+GRASP_INC = grasp_recorder/include
+
 all: main.bin
 
-main.bin: main.c
+main.bin: main.c 
 	$(CROSS_COMPILE)gcc \
 		-Wl,-Tmain.ld -nostartfiles \
 		-I. -I$(FREERTOS_INC) -I$(FREERTOS_PORT_INC) \
@@ -43,6 +46,13 @@ main.bin: main.c
 		$(FREERTOS_SRC)/tasks.c \
 		$(FREERTOS_SRC)/portable/GCC/ARM_CM3/port.c \
 		$(FREERTOS_SRC)/portable/MemMang/heap_1.c \
+		\
+		-I$(FREERTOS_SRC) \
+		-I$(GRASP_INC) \
+		-I$(GRASP_INC)/../ \
+		$(GRASP_SRC)/os_log.c \
+		$(GRASP_SRC)/../os_log_port.c \
+		syscalls.c \
 		\
 		stm32_p103.c \
 		main.c

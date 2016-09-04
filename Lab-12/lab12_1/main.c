@@ -7,6 +7,7 @@
 #include "queue.h"
 #include "semphr.h"
 #include <string.h>
+#include "debug_support.h"
 
 void my_traceSTART();
 void my_traceEND();
