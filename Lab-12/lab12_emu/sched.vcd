@@ -17,42 +17,22 @@ b0 queue_str_task2
 b1 serial_readwrite_task 
 b0 queue_str_task1 
 b0 led_flash_task 
-#1000
+#4000
 b0 queue_str_task2 
 b0 serial_readwrite_task 
 b1 queue_str_task1 
 b0 led_flash_task 
-#2000
+#15000
+b0 queue_str_task2 
+b0 serial_readwrite_task 
+b0 queue_str_task1 
+b1 led_flash_task 
+#20000
 b1 queue_str_task2 
 b0 serial_readwrite_task 
 b0 queue_str_task1 
 b0 led_flash_task 
-#3000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b1 led_flash_task 
-#103000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b1 led_flash_task 
-#203000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b1 led_flash_task 
-#303000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b1 led_flash_task 
-#403000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b1 led_flash_task 
-#503000
+#127000
 b0 queue_str_task2 
 b0 serial_readwrite_task 
 b0 queue_str_task1 

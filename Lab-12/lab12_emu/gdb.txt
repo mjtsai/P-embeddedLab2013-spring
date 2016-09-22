@@ -1,66 +1,43 @@
 
-Breakpoint 5, serial_readwrite_task (pvParameters=0x0) at main.c:173
-173		strcpy(msg.str, "Got:");
+Breakpoint 5, serial_readwrite_task (pvParameters=0x0) at main.c:175
+175		strcpy(msg.str, "Got:");
 1: xTaskGetTickCount() = 0
-#0  serial_readwrite_task (pvParameters=0x0) at main.c:173
+#0  serial_readwrite_task (pvParameters=0x0) at main.c:175
 #1  0x00000000 in ?? ()
 
-Breakpoint 2, receive_byte () at main.c:97
-97		while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
+Breakpoint 2, receive_byte () at main.c:99
+99		while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
 1: xTaskGetTickCount() = 0
-#0  receive_byte () at main.c:97
-#1  0x080052e0 in serial_readwrite_task (pvParameters=0x0) at main.c:181
+#0  receive_byte () at main.c:99
+#1  0x080052ea in serial_readwrite_task (pvParameters=0x0) at main.c:183
 #2  0x00000000 in ?? ()
 
-Breakpoint 4, queue_str_task (str=0x8005b70 "Hello 1\n\r", delay=200) at main.c:143
-143		strcpy(msg.str, str);
-1: xTaskGetTickCount() = 1
-#0  queue_str_task (str=0x8005b70 "Hello 1\n\r", delay=200) at main.c:143
-#1  0x08005288 in queue_str_task1 (pvParameters=0x0) at main.c:157
+Breakpoint 4, queue_str_task (str=0x800ca4c "Hello 1\n\r", delay=200) at main.c:145
+145		strcpy(msg.str, str);
+1: xTaskGetTickCount() = 4
+#0  queue_str_task (str=0x800ca4c "Hello 1\n\r", delay=200) at main.c:145
+#1  0x08005298 in queue_str_task1 (pvParameters=0x0) at main.c:159
 #2  0x00000000 in ?? ()
 
-Breakpoint 4, queue_str_task (str=0x8005b7c "Hello 2\n\r", delay=50) at main.c:143
-143		strcpy(msg.str, str);
-1: xTaskGetTickCount() = 2
-#0  queue_str_task (str=0x8005b7c "Hello 2\n\r", delay=50) at main.c:143
-#1  0x080052a8 in queue_str_task2 (pvParameters=0x0) at main.c:162
+Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:111
+111			vTaskDelay(100);
+1: xTaskGetTickCount() = 15
+#0  led_flash_task (pvParameters=0x0) at main.c:111
+#1  0x00000000 in ?? ()
+
+Breakpoint 4, queue_str_task (str=0x800ca58 "Hello 2\n\r", delay=50) at main.c:145
+145		strcpy(msg.str, str);
+1: xTaskGetTickCount() = 20
+#0  queue_str_task (str=0x800ca58 "Hello 2\n\r", delay=50) at main.c:145
+#1  0x080052b8 in queue_str_task2 (pvParameters=0x0) at main.c:164
 #2  0x00000000 in ?? ()
 
-Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:109
-109			vTaskDelay(100);
-1: xTaskGetTickCount() = 3
-#0  led_flash_task (pvParameters=0x0) at main.c:109
+Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:111
+111			vTaskDelay(100);
+1: xTaskGetTickCount() = 127
+#0  led_flash_task (pvParameters=0x0) at main.c:111
 #1  0x00000000 in ?? ()
-
-Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:109
-109			vTaskDelay(100);
-1: xTaskGetTickCount() = 103
-#0  led_flash_task (pvParameters=0x0) at main.c:109
-#1  0x00000000 in ?? ()
-
-Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:109
-109			vTaskDelay(100);
-1: xTaskGetTickCount() = 203
-#0  led_flash_task (pvParameters=0x0) at main.c:109
-#1  0x00000000 in ?? ()
-
-Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:109
-109			vTaskDelay(100);
-1: xTaskGetTickCount() = 303
-#0  led_flash_task (pvParameters=0x0) at main.c:109
-#1  0x00000000 in ?? ()
-
-Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:109
-109			vTaskDelay(100);
-1: xTaskGetTickCount() = 403
-#0  led_flash_task (pvParameters=0x0) at main.c:109
-#1  0x00000000 in ?? ()
-
-Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:109
-109			vTaskDelay(100);
-1: xTaskGetTickCount() = 503
-#0  led_flash_task (pvParameters=0x0) at main.c:109
-#1  0x00000000 in ?? ()
+Remote communication error.  Target disconnected.: Connection reset by peer.
 gdbscript:17: Error in sourced command file:
-Remote connection closed
-(gdb) 1472974312:45722 quit
+putpkt: Not connected.
+(gdb) 1474587426:679615 quit

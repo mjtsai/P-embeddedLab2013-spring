@@ -276,77 +276,34 @@ void vApplicationIdleHook( void ) {
 
 
 void my_traceSTART(void){
+    printf("my_traceSTART\n");              // need semihosting
 }
 
 void my_traceEND(void){
+    printf("my_traceEND\n");              // need semihosting
 }
 
 
 void my_traceTASK_SWITCHED_IN(void){
-    printf("switch in\n");
+    printf("my_traceTASK_SWITCHED_IN\n");              // need semihosting
 
-//    USART_SendData(USART2,  's' );
-//	USART_SendData(USART2,  'w' );
-//	USART_SendData(USART2,  'i' );
-//	USART_SendData(USART2,  't' );
-//	USART_SendData(USART2,  'c' );
-//	USART_SendData(USART2,  'h' );
-//	USART_SendData(USART2,  ' ' );
-//	USART_SendData(USART2,  'i' );
-//	USART_SendData(USART2,  'n' );
-//	USART_SendData(USART2,  '\n' );
-//	USART_SendData(USART2,  '\r' );
     
 
 }
 
 void my_traceTASK_SWITCHED_OUT(void){
-    USART_SendData(USART2,  's' );
-	USART_SendData(USART2,  'w' );
-	USART_SendData(USART2,  'i' );
-	USART_SendData(USART2,  't' );
-	USART_SendData(USART2,  'c' );
-	USART_SendData(USART2,  'h' );
-	USART_SendData(USART2,  ' ' );
-	USART_SendData(USART2,  'o' );
-	USART_SendData(USART2,  'u' );
-	USART_SendData(USART2,  't' );
-	USART_SendData(USART2,  '\n' );
-	USART_SendData(USART2,  '\r' );
+    printf("my_traceTASK_SWITCHED_OUT\n");              // need semihosting
 }
 
 
 
 void my_traceGIVE_MUTEX_RECURSIVE(xQueueHandle pxMutex){
-    USART_SendData(USART2,  'g' );
-	USART_SendData(USART2,  'i' );
-	USART_SendData(USART2,  'v' );
-	USART_SendData(USART2,  'e' );
-	USART_SendData(USART2,  ' ' );
-	USART_SendData(USART2,  'm' );
-	USART_SendData(USART2,  'u' );
-	USART_SendData(USART2,  't' );
-	USART_SendData(USART2,  'e' );
-	USART_SendData(USART2,  'x' );
-	USART_SendData(USART2,  '\n' );
-	USART_SendData(USART2,  '\r' );
-
+    printf("my_traceGIVE_MUTEX_RECURSIVE\n");              // need semihosting
 
 }
 
 void my_traceTAKE_MUTEX_RECURSIVE(xQueueHandle pxMutex){
-    USART_SendData(USART2,  't' );
-	USART_SendData(USART2,  'a' );
-	USART_SendData(USART2,  'k' );
-	USART_SendData(USART2,  'e' );
-	USART_SendData(USART2,  ' ' );
-	USART_SendData(USART2,  'm' );
-	USART_SendData(USART2,  'u' );
-	USART_SendData(USART2,  't' );
-	USART_SendData(USART2,  'e' );
-	USART_SendData(USART2,  'x' );
-	USART_SendData(USART2,  '\n' );
-	USART_SendData(USART2,  '\r' );
+    printf("my_traceTAKE_MUTEX_RECURSIVE\n");              // need semihosting
 }
 
 

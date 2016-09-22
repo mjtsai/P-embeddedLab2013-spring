@@ -14,11 +14,7 @@ FREERTOS_SRC = $(LIB_PATH)/FreeRTOS
 FREERTOS_INC = $(FREERTOS_SRC)/include/                                       
 FREERTOS_PORT_INC = $(FREERTOS_SRC)/portable/GCC/ARM_$(ARCH)/
 
-GRASP_SRC = grasp_recorder/src
-GRASP_INC = grasp_recorder/include
-
 all: main.bin
-
 
 main.bin: main.c 
 	$(CROSS_COMPILE)gcc \
@@ -103,6 +99,11 @@ qemuauto_remote: main.bin gdbscript
 	$(CROSS_COMPILE)gdb -x gdbscript&
 	sleep 5
 	python gdbtovcd.py
+
+qemulab: main.bin gdbscript
+	bash emulate_semihosting.sh main.bin &
+	sleep 1
+	sleep 5
 
 
 clean:
