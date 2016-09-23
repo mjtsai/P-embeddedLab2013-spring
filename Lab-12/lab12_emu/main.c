@@ -9,13 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 
-void my_traceSTART();
-void my_traceEND();
-void my_traceTASK_SWITCHED_IN();
-void my_traceTASK_SWITCHED_OUT();
-void my_traceGIVE_MUTEX_RECURSIVE(xQueueHandle pxMutex);
-void my_traceTAKE_MUTEX_RECURSIVE(xQueueHandle pxMutex);
-
+#include "grasp_task.h"
 
 static void setup_hardware();
 
@@ -271,39 +265,5 @@ void vApplicationIdleHook( void ) {
 */    
 }
 
-
-/***** lab *****/
-
-
-void my_traceSTART(void){
-    printf("my_traceSTART\n");              // need semihosting
-}
-
-void my_traceEND(void){
-    printf("my_traceEND\n");              // need semihosting
-}
-
-
-void my_traceTASK_SWITCHED_IN(void){
-    printf("my_traceTASK_SWITCHED_IN\n");              // need semihosting
-
-    
-
-}
-
-void my_traceTASK_SWITCHED_OUT(void){
-    printf("my_traceTASK_SWITCHED_OUT\n");              // need semihosting
-}
-
-
-
-void my_traceGIVE_MUTEX_RECURSIVE(xQueueHandle pxMutex){
-    printf("my_traceGIVE_MUTEX_RECURSIVE\n");              // need semihosting
-
-}
-
-void my_traceTAKE_MUTEX_RECURSIVE(xQueueHandle pxMutex){
-    printf("my_traceTAKE_MUTEX_RECURSIVE\n");              // need semihosting
-}
 
 
