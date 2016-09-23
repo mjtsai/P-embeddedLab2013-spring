@@ -81,7 +81,7 @@
 #define configMINIMAL_STACK_SIZE	( ( unsigned short ) 128 )
 #define configTOTAL_HEAP_SIZE		( ( size_t ) ( 17 * 1024 ) )
 #define configMAX_TASK_NAME_LEN		( 16 )
-#define configUSE_TRACE_FACILITY	0
+#define configUSE_TRACE_FACILITY	1
 #define configUSE_16_BIT_TICKS		0
 #define configIDLE_SHOULD_YIELD		1
 #define configUSE_MUTEXES			1
@@ -114,19 +114,7 @@ NVIC value of 255. */
 #define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	15
 
 
-/***** lab *****/
-#define traceSTART()                                    my_traceSTART()
-#define traceEND()                                      my_traceEND()
-//#define traceTASK_CREATE(pxNewTCB)                      my_traceTASK_CREATE(pxNewTCB)
-#define traceTASK_CREATE( pxNewTCB ) \
-    printf("my_traceTASK_CREATE\n");              // need semihosting
-
-#define traceTASK_SWITCHED_IN()                         my_traceTASK_SWITCHED_IN()
-#define traceTASK_SWITCHED_OUT()                        my_traceTASK_SWITCHED_OUT()
-//#define traceCREATE_MUTEX( pxNewQueue )                 my_traceCREATE_MUTEX( pxNewQueue )
-#define traceGIVE_MUTEX_RECURSIVE( pxMutex )            my_traceGIVE_MUTEX_RECURSIVE( pxMutex )
-#define traceTAKE_MUTEX_RECURSIVE( pxMutex )            my_traceTAKE_MUTEX_RECURSIVE( pxMutex )
-
+#include "grasp_task.h"
 
 #endif /* FREERTOS_CONFIG_H */
 
