@@ -5,36 +5,571 @@ $end
 $var wire 1 queue_str_task2 queue_str_task2 $end
 $var wire 1 serial_readwrite_task serial_readwrite_task $end
 $var wire 1 queue_str_task1 queue_str_task1 $end
-$var wire 1 led_flash_task led_flash_task $end
+$var wire 1 rs232_xmit_msg_task rs232_xmit_msg_task $end
 $dumpvars
 #0
 b0 queue_str_task2 
 b1 serial_readwrite_task 
 b0 queue_str_task1 
-b0 led_flash_task 
+b0 rs232_xmit_msg_task 
 #100
-b0 queue_str_task2 
-b1 serial_readwrite_task 
-b0 queue_str_task1 
-b0 led_flash_task 
-#4000
 b0 queue_str_task2 
 b0 serial_readwrite_task 
 b1 queue_str_task1 
-b0 led_flash_task 
-#15000
-b0 queue_str_task2 
-b0 serial_readwrite_task 
-b0 queue_str_task1 
-b1 led_flash_task 
-#20000
+b0 rs232_xmit_msg_task 
+#1000
 b1 queue_str_task2 
 b0 serial_readwrite_task 
 b0 queue_str_task1 
-b0 led_flash_task 
-#127000
+b0 rs232_xmit_msg_task 
+#1100
 b0 queue_str_task2 
 b0 serial_readwrite_task 
 b0 queue_str_task1 
-b1 led_flash_task 
+b1 rs232_xmit_msg_task 
+#86000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#88000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#122000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#127000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#133000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#139000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#145000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#151000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#156000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#161000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#166000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#172000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#177000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#183000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#188000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#193000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#199000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#204000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#209000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#216000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#221000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#227000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#232000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#238000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#244000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#250000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#255000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#261000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#266000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#271000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#277000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#282000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#288000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#293000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#299000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#304000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#309000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#315000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#320000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#326000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#331000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#337000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#342000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#348000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#353000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#358000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#421000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#456000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#462000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#467000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#473000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#478000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#483000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#489000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#494000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#499000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#505000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#510000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#515000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#521000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#525000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#531000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#537000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#542000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#548000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#553000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#559000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#565000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#670000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#704000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#710000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#715000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#720000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#725000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#731000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#736000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#742000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#747000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#752000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#757000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#763000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#768000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#773000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#778000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#784000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#789000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#794000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#800000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#805000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#810000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#877000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#911000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#917000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#921000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#927000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#932000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#937000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#943000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#949000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#953000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#959000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#964000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#970000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#975000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#981000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#986000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#991000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#996000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
+#1002000
+b0 queue_str_task2 
+b1 serial_readwrite_task 
+b0 queue_str_task1 
+b0 rs232_xmit_msg_task 
 $end

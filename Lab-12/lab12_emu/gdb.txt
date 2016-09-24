@@ -1,43 +1,792 @@
 
-Breakpoint 5, serial_readwrite_task (pvParameters=0x0) at main.c:175
-175		strcpy(msg.str, "Got:");
+Breakpoint 5, serial_readwrite_task (pvParameters=0x0) at main.c:168
+168		strcpy(msg.str, "Got:");
 1: xTaskGetTickCount() = 0
-#0  serial_readwrite_task (pvParameters=0x0) at main.c:175
+#0  serial_readwrite_task (pvParameters=0x0) at main.c:168
 #1  0x00000000 in ?? ()
 
-Breakpoint 2, receive_byte () at main.c:99
-99		while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
+Breakpoint 4, queue_str_task (str=0x800562c "Hello 1\n\r", delay=200) at main.c:138
+138		strcpy(msg.str, str);
 1: xTaskGetTickCount() = 0
-#0  receive_byte () at main.c:99
-#1  0x080052ea in serial_readwrite_task (pvParameters=0x0) at main.c:183
+#0  queue_str_task (str=0x800562c "Hello 1\n\r", delay=200) at main.c:138
+#1  0x08005090 in queue_str_task1 (pvParameters=0x0) at main.c:152
 #2  0x00000000 in ?? ()
 
-Breakpoint 4, queue_str_task (str=0x800ca4c "Hello 1\n\r", delay=200) at main.c:145
-145		strcpy(msg.str, str);
-1: xTaskGetTickCount() = 4
-#0  queue_str_task (str=0x800ca4c "Hello 1\n\r", delay=200) at main.c:145
-#1  0x08005298 in queue_str_task1 (pvParameters=0x0) at main.c:159
+Breakpoint 4, queue_str_task (str=0x8005638 "Hello 2\n\r", delay=50) at main.c:138
+138		strcpy(msg.str, str);
+1: xTaskGetTickCount() = 1
+#0  queue_str_task (str=0x8005638 "Hello 2\n\r", delay=50) at main.c:138
+#1  0x080050b0 in queue_str_task2 (pvParameters=0x0) at main.c:157
 #2  0x00000000 in ?? ()
 
-Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:111
-111			vTaskDelay(100);
-1: xTaskGetTickCount() = 15
-#0  led_flash_task (pvParameters=0x0) at main.c:111
+Breakpoint 3, rs232_xmit_msg_task (pvParameters=0x0) at main.c:117
+117			while (!xQueueReceive(serial_str_queue, &msg, portMAX_DELAY));
+1: xTaskGetTickCount() = 1
+#0  rs232_xmit_msg_task (pvParameters=0x0) at main.c:117
 #1  0x00000000 in ?? ()
 
-Breakpoint 4, queue_str_task (str=0x800ca58 "Hello 2\n\r", delay=50) at main.c:145
-145		strcpy(msg.str, str);
-1: xTaskGetTickCount() = 20
-#0  queue_str_task (str=0x800ca58 "Hello 2\n\r", delay=50) at main.c:145
-#1  0x080052b8 in queue_str_task2 (pvParameters=0x0) at main.c:164
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 86
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
 #2  0x00000000 in ?? ()
 
-Breakpoint 3, led_flash_task (pvParameters=0x0) at main.c:111
-111			vTaskDelay(100);
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 88
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 122
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
 1: xTaskGetTickCount() = 127
-#0  led_flash_task (pvParameters=0x0) at main.c:111
-#1  0x00000000 in ?? ()
-Remote communication error.  Target disconnected.: Connection reset by peer.
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 133
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 139
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 145
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 151
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 156
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 161
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 166
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 172
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 177
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 183
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 188
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 193
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 199
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 204
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 209
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 216
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 221
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 227
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 232
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 238
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 244
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 250
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 255
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 261
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 266
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 271
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 277
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 282
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 288
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 293
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 299
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 304
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 309
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 315
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 320
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 326
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 331
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 337
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 342
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 348
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 353
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 358
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 421
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 456
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 462
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 467
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 473
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 478
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 483
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 489
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 494
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 499
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 505
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 510
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 515
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 521
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 525
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 531
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 537
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 542
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 548
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 553
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 559
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 565
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 670
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 704
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 710
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 715
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 720
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 725
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 731
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 736
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 742
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 747
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 752
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 757
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 763
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 768
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 773
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 778
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 784
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 789
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 794
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 800
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 805
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 810
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 877
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 911
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 917
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 921
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 927
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 932
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 937
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 943
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 949
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 953
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 959
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 964
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 970
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 975
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 981
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 986
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 991
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 996
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
+
+Breakpoint 2, receive_byte () at main.c:95
+95	}
+1: xTaskGetTickCount() = 1002
+#0  receive_byte () at main.c:95
+#1  0x080050e2 in serial_readwrite_task (pvParameters=0x0) at main.c:176
+#2  0x00000000 in ?? ()
 gdbscript:17: Error in sourced command file:
-putpkt: Not connected.
-(gdb) 1474587426:679615 quit
+Remote connection closed
+(gdb) 1474688297:509869 quit

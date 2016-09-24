@@ -7,8 +7,8 @@
 #define traceEND()                                      my_traceEND()
 //#define traceTASK_CREATE(pxNewTCB)                      my_traceTASK_CREATE(pxNewTCB)
 #define traceTASK_CREATE( pxNewTCB ) \
-    printf("[grasp]newTask task%d -priority %d -name \"%s\"\n", pxNewTCB->uxTCBNumber, pxNewTCB->uxPriority, pxNewTCB->pcTaskName);       /* need semihosting*/ \
-    printf("[grasp]plot %d jobArrived job%d.1 task%d\n", xTaskGetTickCount(), pxNewTCB->uxTCBNumber,  pxNewTCB->uxTCBNumber);       /* need semihosting */
+    printf("\n[grasp]newTask task%d -priority %d -name \"%s\"\n", pxNewTCB->uxTCBNumber, pxNewTCB->uxPriority, pxNewTCB->pcTaskName);       /* need semihosting*/ \
+    printf("\n[grasp]plot %d jobArrived job%d.1 task%d\n", xTaskGetTickCount(), pxNewTCB->uxTCBNumber,  pxNewTCB->uxTCBNumber);       /* need semihosting */
 #define traceTASK_SWITCHED_IN()                         my_traceTASK_SWITCHED_IN()
 #define traceTASK_SWITCHED_OUT()                        my_traceTASK_SWITCHED_OUT()
 #define traceMOVED_TASK_TO_READY_STATE( pxTCB )         my_traceMOVED_TASK_TO_READY_STATE( pxTCB )
@@ -37,23 +37,25 @@
 
 
 #define my_traceTASK_SWITCHED_IN() \
-    printf("[grasp]plot %d jobResumed job%d.1\n", xTaskGetTickCount(), pxCurrentTCB->uxTCBNumber);       // need semihosting
+    printf("\n[grasp]plot %d jobPreempted job%d.1 -target job%d.1\n", xTaskGetTickCount(), old_task->uxTCBNumber, pxCurrentTCB->uxTCBNumber); \
+    printf("\n[grasp]plot %d jobResumed job%d.1\n", xTaskGetTickCount(), pxCurrentTCB->uxTCBNumber);       // need semihosting
 //    printf("%d my_traceTASK_SWITCHED_IN\n", xTaskGetTickCount() );              // need semihosting
 //    printf("plot %d jobArrived job%d.1 task%d -name \"%s\"\n", xTaskGetTickCount(), pxNewTCB->uxTaskNumber, pxNewTCB->uxTaskNumber, pxNewTCB->pcTaskName);       // need semihosting
 
 
 #define my_traceTASK_SWITCHED_OUT() \
-    printf("[grasp]plot %d jobPreempted job%d.1\n", xTaskGetTickCount(), pxCurrentTCB->uxTCBNumber);       // need semihosting
+    static tskTCB * old_task; \
+    old_task = pxCurrentTCB; 
 //    printf("%d my_traceTASK_SWITCHED_OUT\n", xTaskGetTickCount() );              // need semihosting
 
-#define my_traceMOVED_TASK_TO_READY_STATE( pxTCB ) \
-    printf("%d my_traceMOVED_TASK_TO_READY_STATE\n", xTaskGetTickCount() );              // need semihosting
+#define my_traceMOVED_TASK_TO_READY_STATE( pxTCB ) 
+//    printf("%d my_traceMOVED_TASK_TO_READY_STATE\n", xTaskGetTickCount() );              // need semihosting
 
-#define my_traceGIVE_MUTEX_RECURSIVE(pxMutex) \
-    printf("%d my_traceGIVE_MUTEX_RECURSIVE\n", xTaskGetTickCount() );              // need semihosting
+#define my_traceGIVE_MUTEX_RECURSIVE(pxMutex) 
+//    printf("%d my_traceGIVE_MUTEX_RECURSIVE\n", xTaskGetTickCount() );              // need semihosting
 
 
-#define my_traceTAKE_MUTEX_RECURSIVE(pxMutex) \
-    printf("%d my_traceTAKE_MUTEX_RECURSIVE\n", xTaskGetTickCount() );              // need semihosting
+#define my_traceTAKE_MUTEX_RECURSIVE(pxMutex) 
+//    printf("%d my_traceTAKE_MUTEX_RECURSIVE\n", xTaskGetTickCount() );              // need semihosting
 
 #endif

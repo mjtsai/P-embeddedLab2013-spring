@@ -28,4 +28,4 @@ $CMDS
 	kill $timer
 }
 
-stm32_qemu $1 3
+stm32_qemu $1 15

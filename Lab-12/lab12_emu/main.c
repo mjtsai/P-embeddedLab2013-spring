@@ -201,8 +201,6 @@ void serial_readwrite_task(void *pvParameters)
 
 int main()
 {
-    traceSTART();
-
 	init_led();
 
 	init_button();
@@ -228,11 +226,11 @@ int main()
 	xTaskCreate(queue_str_task1,
 	            (signed portCHAR *) "Serial Write 1",
 	            512 /* stack size */, NULL,
-	            tskIDLE_PRIORITY + 10, NULL );
+	            tskIDLE_PRIORITY + 9, NULL );
 	xTaskCreate(queue_str_task2,
 	            (signed portCHAR *) "Serial Write 2",
 	            512 /* stack size */,
-	            NULL, tskIDLE_PRIORITY + 10, NULL);
+	            NULL, tskIDLE_PRIORITY + 9, NULL);
 
 	/* Create a task to write messages from the queue to the RS232 port. */
 	xTaskCreate(rs232_xmit_msg_task,
@@ -256,16 +254,16 @@ void vApplicationTickHook()
 {
 }
 
-void vApplicationIdleHook( void ) {
-/*    
-	send_byte( 'i' );
-	send_byte( 'd' );
-	send_byte( 'l' );
-	send_byte( 'e' );
-	send_byte( '\n' );
-	send_byte( '\r' );
-*/    
-}
+//void vApplicationIdleHook( void ) {
+///*    
+//	send_byte( 'i' );
+//	send_byte( 'd' );
+//	send_byte( 'l' );
+//	send_byte( 'e' );
+//	send_byte( '\n' );
+//	send_byte( '\r' );
+//*/    
+//}
 
 
 
