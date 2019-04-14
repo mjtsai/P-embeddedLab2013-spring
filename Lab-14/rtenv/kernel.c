@@ -1,4 +1,6 @@
 #include <stddef.h>
+#include <stm32f10x.h>
+#include <misc.h>
 
 void *memcpy(void *dest, const void *src, size_t n)
 {
@@ -29,9 +31,11 @@ size_t strlen(const char *s)
 void puts(char *s)
 {
 	while (*s) {
-		while (*(UART0 + UARTFR) & UARTFR_TXFF)
+//mj		while (*(UART0 + UARTFR) & UARTFR_TXFF)
+        while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET)
 			/* wait */ ;
-		*UART0 = *s;
+//mj		*UART0 = *s;
+        USART_SendData(USART2, *s);
 		s++;
 	}
 }
@@ -62,6 +66,7 @@ void puts(char *s)
 #define PATH_SERVER_NAME "/sys/pathserver"
 void pathserver()
 {
+//{{{
 	char paths[PIPE_LIMIT - TASK_LIMIT - 3][PATH_MAX];
 	int npaths = 0;
 	int i = 0;
@@ -97,10 +102,12 @@ void pathserver()
 			}
 		}
 	}
+//}}}
 }
 
 int mkfifo(const char *pathname, int mode)
 {
+//{{{
 	size_t plen = strlen(pathname)+1;
 	char buf[4+4+PATH_MAX];
 	(void) mode;
@@ -111,10 +118,12 @@ int mkfifo(const char *pathname, int mode)
 	write(PATHSERVER_FD, buf, 4 + 4 + plen);
 
 	return 0;
+//}}}
 }
 
 int open(const char *pathname, int flags)
 {
+//{{{
 	unsigned int replyfd = getpid() + 3;
 	size_t plen = strlen(pathname) + 1;
 	unsigned int fd = -1;
@@ -128,9 +137,11 @@ int open(const char *pathname, int flags)
 	read(replyfd, &fd, 4);
 
 	return fd;
+//}}}
 }
 
-void serialout(volatile unsigned int* uart, unsigned int intr)
+//mj void serialout(volatile unsigned int* uart, unsigned int intr)
+void serialout(volatile USART_TypeDef* uart, unsigned int intr)
 {
 	int fd;
 	char c;
@@ -139,22 +150,29 @@ void serialout(volatile unsigned int* uart, unsigned int intr)
 	fd = open("/dev/tty0/out", 0);
 
 	/* enable TX interrupt on UART */
-	*(uart + UARTIMSC) |= UARTIMSC_TXIM;
+//mj	*(uart + UARTIMSC) |= UARTIMSC_TXIM;
+
+    USART_ITConfig(uart, USART_IT_TXE, ENABLE);
+
 
 	while (1) {
 		if (doread)
 			read(fd, &c, 1);
 		doread = 0;
-		if (!(*(uart + UARTFR) & UARTFR_TXFF)) {
-			*uart = c;
+//mj		if (!(*(uart + UARTFR) & UARTFR_TXFF)) {
+        if(USART_GetITStatus(uart, USART_IT_TXE) == SET){
+//mj			*uart = c;
+            USART_SendData(uart, c);   
 			doread = 1;
 		}
 		interrupt_wait(intr);
-		*(uart + UARTICR) = UARTICR_TXIC;
+//mj		*(uart + UARTICR) = UARTICR_TXIC;
+
 	}
 }
 
-void serialin(volatile unsigned int* uart, unsigned int intr)
+//mj void serialin(volatile unsigned int* uart, unsigned int intr)
+void serialin(volatile USART_TypeDef* uart, unsigned int intr)
 {
 	int fd;
 	char c;
@@ -162,13 +180,18 @@ void serialin(volatile unsigned int* uart, unsigned int intr)
 	fd = open("/dev/tty0/in", 0);
 
 	/* enable RX interrupt on UART */
-	*(uart + UARTIMSC) |= UARTIMSC_RXIM;
+//mj	*(uart + UARTIMSC) |= UARTIMSC_RXIM;
+    USART_ITConfig(uart, USART_IT_RXNE, ENABLE);
+
 
 	while (1) {
 		interrupt_wait(intr);
-		*(uart + UARTICR) = UARTICR_RXIC;
-		if (!(*(uart + UARTFR) & UARTFR_RXFE)) {
-			c = *uart;
+//mj		*(uart + UARTICR) = UARTICR_RXIC;
+
+//mj		if (!(*(uart + UARTFR) & UARTFR_RXFE)) {
+		if (USART_GetITStatus(uart, USART_IT_RXNE) != RESET) {
+//mj			c = *uart;
+            c = USART_ReceiveData(uart);
 			write(fd, &c, 1);
 		}
 	}
@@ -200,8 +223,10 @@ void echo()
 void first()
 {
 	if (!fork()) pathserver();
-	if (!fork()) serialout(UART0, PIC_UART0);
-	if (!fork()) serialin(UART0, PIC_UART0);
+//mj	if (!fork()) serialout(UART0, PIC_UART0);
+	if (!fork()) serialout(USART2, USART2_IRQn);
+//mj	if (!fork()) serialin(UART0, PIC_UART0);
+	if (!fork()) serialin(USART2, USART2_IRQn);
 	if (!fork()) greeting();
 	if (!fork()) echo();
 
@@ -310,12 +335,31 @@ int main()
 	size_t current_task = 0;
 	size_t i;
 
+    //
+    NVIC_InitTypeDef NVIC_InitStructure;
+
+
+    // enable timer
 	*(PIC + VIC_INTENABLE) = PIC_TIMER01;
 
 	*TIMER0 = 10000;
 	*(TIMER0 + TIMER_CONTROL) = TIMER_EN | TIMER_PERIODIC
 	                            | TIMER_32BIT | TIMER_INTEN;
+//    /* SysTick end of count event each 10ms */
+//    RCC_GetClocksFreq(&RCC_Clocks);
+//    SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);  
 
+    // enable uart
+	init_rs232();
+    /* Enable the USART2 IRQ in the NVIC module (so that the USART2 interrupt
+     * handler is enabled). */
+    NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+	enable_rs232();
+
+    //
 	tasks[task_count] = init_task(stacks[task_count], &first);
 	task_count++;
 
