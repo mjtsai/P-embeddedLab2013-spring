@@ -340,14 +340,17 @@ int main()
 
 
     // enable timer
-	*(PIC + VIC_INTENABLE) = PIC_TIMER01;
+//mj	*(PIC + VIC_INTENABLE) = PIC_TIMER01;
+//mj
+//mj	*TIMER0 = 10000;        // counter
+//mj	*(TIMER0 + TIMER_CONTROL) = TIMER_EN | TIMER_PERIODIC
+//mj	                            | TIMER_32BIT | TIMER_INTEN;
 
-	*TIMER0 = 10000;
-	*(TIMER0 + TIMER_CONTROL) = TIMER_EN | TIMER_PERIODIC
-	                            | TIMER_32BIT | TIMER_INTEN;
-//    /* SysTick end of count event each 10ms */
-//    RCC_GetClocksFreq(&RCC_Clocks);
-//    SysTick_Config(RCC_Clocks.HCLK_Frequency / 100);  
+    // freertos
+//mj    *(portNVIC_SYSTICK_LOAD) = ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
+//mj	*(portNVIC_SYSTICK_CTRL) = portNVIC_SYSTICK_CLK | portNVIC_SYSTICK_INT | portNVIC_SYSTICK_ENABLE;
+    
+    SysTick_Config(10000);  // cmsis
 
     // enable uart
 	init_rs232();
@@ -404,23 +407,26 @@ int main()
 			break;
 		case 0x5: /* interrupt_wait */
 			/* Enable interrupt */
-			*(PIC + VIC_INTENABLE) = tasks[current_task][2 + 0];
-			/* Block task waiting for interrupt to happen */
+//mj			*(PIC + VIC_INTENABLE) = tasks[current_task][2 + 0];
+            NVIC_EnableIRQ(tasks[current_task][2 + 0]);
+            /* Block task waiting for interrupt to happen */
 			tasks[current_task][-1] = TASK_WAIT_INTR;
 			break;
 		default: /* Catch all interrupts */
-			if ((int)tasks[current_task][2 + 7] < 0) {
+			if ((int)tasks[current_task][2 + 7] < 0) {      // **negative number**
 				unsigned int intr = (1 << -tasks[current_task][2+7]);
 
-				if (intr == PIC_TIMER01) {
+//mj				if (intr == PIC_TIMER01) {
+				if (intr == SysTick_IRQn) {
 					/* Never disable timer. We need it for pre-emption */
-					if (*(TIMER0 + TIMER_MIS)) { /* Timer0 went off */
-						*(TIMER0 + TIMER_INTCLR) = 1; /* Clear interrupt */
-					}
+//??					if (*(TIMER0 + TIMER_MIS)) { /* Timer0 went off */      // status
+//??						*(TIMER0 + TIMER_INTCLR) = 1; /* Clear interrupt */
+//??					}
 				}
 				else {
 					/* Disable interrupt, interrupt_wait re-enables */
-					*(PIC + VIC_INTENCLEAR) = intr;
+//mj					*(PIC + VIC_INTENCLEAR) = intr;
+                    NVIC_DisableIRQ(intr);
 				}
 				/* Unblock any waiting tasks */
 				for (i = 0; i < task_count; i++)
