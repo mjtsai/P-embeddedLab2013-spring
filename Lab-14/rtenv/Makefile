@@ -1,9 +1,10 @@
-CROSS_COMPILE=arm-none-eabi-
+CROSS_COMPILE ?= arm-none-eabi-
+CC := $(CROSS_COMPILE)gcc
 QEMU_STM32 ?= ../qemu_stm32/arm-softmmu/qemu-system-arm
 
-ARCH=CM3
-VENDOR=ST
-PLAT=STM32F10x
+ARCH = CM3
+VENDOR = ST
+PLAT = STM32F10x
 
 LIBDIR = ../../Lab-8/freertos
 CMSIS_LIB=$(LIBDIR)/libraries/CMSIS/$(ARCH)
@@ -14,18 +15,18 @@ CMSIS_PLAT_SRC = $(CMSIS_LIB)/DeviceSupport/$(VENDOR)/$(PLAT)
 FREERTOS_SRC = libraries/FreeRTOS
 FREERTOS_INC = $(FREERTOS_SRC)/include/                                       
 FREERTOS_PORT_INC = $(FREERTOS_SRC)/portable/GCC/ARM_$(ARCH)/
-
+	
 all: main.bin
 
-main.bin: kernel.c
+main.bin: kernel.c context_switch.s syscalls.s
 	$(CROSS_COMPILE)gcc \
 		-Wl,-Tmain.ld -nostartfiles \
-		-I. -I$(FREERTOS_INC) -I$(FREERTOS_PORT_INC) \
+		-I . \
 		-I$(LIBDIR)/libraries/CMSIS/CM3/CoreSupport \
 		-I$(LIBDIR)/libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
 		-I$(CMSIS_LIB)/CM3/DeviceSupport/ST/STM32F10x \
 		-I$(LIBDIR)/libraries/STM32F10x_StdPeriph_Driver/inc \
-		-fno-common -O0 \
+		-fno-common -ffreestanding -O0 \
 		-gdwarf-2 -g3 \
 		-mcpu=cortex-m3 -mthumb \
 		-o main.elf \
@@ -39,12 +40,8 @@ main.bin: kernel.c
 		$(STM32_LIB)/src/stm32f10x_exti.c \
 		$(STM32_LIB)/src/misc.c \
 		\
-		$(FREERTOS_SRC)/list.c \
-		$(FREERTOS_SRC)/queue.c \
-		$(FREERTOS_SRC)/tasks.c \
-		$(FREERTOS_SRC)/portable/GCC/ARM_CM3/port.c \
-		$(FREERTOS_SRC)/portable/MemMang/heap_1.c \
-		\
+		context_switch.s \
+		syscalls.s \
 		stm32_p103.c \
 		kernel.c
 	$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
@@ -87,15 +84,12 @@ qemuauto: main.bin gdbscript
 	sleep 1
 	$(CROSS_COMPILE)gdb -x gdbscript&
 	sleep 5
-	python gdbvcd.py
 
 qemuauto_remote: main.bin gdbscript
 	bash emulate_remote.sh main.bin &
 	sleep 1
 	$(CROSS_COMPILE)gdb -x gdbscript&
 	sleep 5
-	python gdbvcd.py
-
 
 clean:
-	rm -f *.elf *.bin *.list gdb.txt
+	rm -f *.elf *.bin *.list

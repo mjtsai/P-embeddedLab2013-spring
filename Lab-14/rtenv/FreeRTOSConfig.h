@@ -119,5 +119,24 @@ configKERNEL_INTERRUPT_PRIORITY setting.  Here 15 corresponds to the lowest
 NVIC value of 255. */
 #define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	15
 
+
+
+#define portCHAR                char
+#define portFLOAT               float
+#define portDOUBLE              double
+#define portLONG                long
+#define portSHORT               short                                           
+#define portSTACK_TYPE  unsigned portLONG
+#define portBASE_TYPE   long
+
+#if( configUSE_16_BIT_TICKS == 1 )
+typedef unsigned portSHORT portTickType;                                
+#define portMAX_DELAY ( portTickType ) 0xffff
+#else
+typedef unsigned portLONG portTickType;
+#define portMAX_DELAY ( portTickType ) 0xffffffff
+#endif
+
+
 #endif /* FREERTOS_CONFIG_H */
 

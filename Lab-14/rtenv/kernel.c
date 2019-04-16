@@ -1,7 +1,10 @@
+#include "stm32f10x.h"
+#include "FreeRTOSConfig.h"
+#include "misc.h"
 #include <stddef.h>
-#include <stm32f10x.h>
-#include <misc.h>
 
+
+//
 void *memcpy(void *dest, const void *src, size_t n)
 {
 	char *d = dest;
@@ -141,8 +144,9 @@ int open(const char *pathname, int flags)
 }
 
 //mj void serialout(volatile unsigned int* uart, unsigned int intr)
-void serialout(volatile USART_TypeDef* uart, unsigned int intr)
+void serialout(USART_TypeDef* uart, unsigned int intr)
 {
+//{{{
 	int fd;
 	char c;
 	int doread = 1;
@@ -169,11 +173,13 @@ void serialout(volatile USART_TypeDef* uart, unsigned int intr)
 //mj		*(uart + UARTICR) = UARTICR_TXIC;
 
 	}
+//}}}
 }
 
 //mj void serialin(volatile unsigned int* uart, unsigned int intr)
-void serialin(volatile USART_TypeDef* uart, unsigned int intr)
+void serialin(USART_TypeDef* uart, unsigned int intr)
 {
+//{{{
 	int fd;
 	char c;
 	mkfifo("/dev/tty0/in", 0);
@@ -195,6 +201,7 @@ void serialin(volatile USART_TypeDef* uart, unsigned int intr)
 			write(fd, &c, 1);
 		}
 	}
+//}}}    
 }
 
 void greeting()
@@ -209,6 +216,7 @@ void greeting()
 
 void echo()
 {
+//{{{    
 	int fdout, fdin;
 	char c;
 	fdout = open("/dev/tty0/out", 0);
@@ -218,19 +226,22 @@ void echo()
 		read(fdin, &c, 1);
 		write(fdout, &c, 1);
 	}
+//}}}    
 }
 
 void first()
 {
-	if (!fork()) pathserver();
+//{{{
+//	if (!fork()) pathserver();
 //mj	if (!fork()) serialout(UART0, PIC_UART0);
 	if (!fork()) serialout(USART2, USART2_IRQn);
 //mj	if (!fork()) serialin(UART0, PIC_UART0);
-	if (!fork()) serialin(USART2, USART2_IRQn);
+//	if (!fork()) serialin(USART2, USART2_IRQn);
 	if (!fork()) greeting();
-	if (!fork()) echo();
+//	if (!fork()) echo();
 
 	while(1);
+//}}}    
 }
 
 struct pipe_ringbuffer {
@@ -261,7 +272,7 @@ struct pipe_ringbuffer {
 unsigned int *init_task(unsigned int *stack, void (*start)())
 {
 	stack += STACK_SIZE - 16; /* End of stack, minus what we're about to push */
-	stack[0] = 0x10; /* User mode, interrupts on */
+	stack[0] = 0x10;                    // reserved
 	stack[1] = (unsigned int)start;
 	return stack;
 }
@@ -271,6 +282,7 @@ void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct 
 
 void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
+//{{{    
 	task[-1] = TASK_READY;
 	/* If the fd is invalid, or trying to read too much  */
 	if (task[2+0] > PIPE_LIMIT || task[2+2] > PIPE_BUF) {
@@ -296,10 +308,12 @@ void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct p
 					_write(tasks[i], tasks, task_count, pipes);
 		}
 	}
+//}}}    
 }
 
 void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
+//{{{    
 	/* If the fd is invalid or the write would be non-atomic */
 	if (task[2 + 0] > PIPE_LIMIT || task[2 + 2] > PIPE_BUF) {
 		task[2 + 0] = -1;
@@ -324,10 +338,13 @@ void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct 
 					_read(tasks[i], tasks, task_count, pipes);
 		}
 	}
+//}}}    
 }
 
-int main()
-{
+
+
+int main(){
+
 	unsigned int stacks[TASK_LIMIT][STACK_SIZE];
 	unsigned int *tasks[TASK_LIMIT];
 	struct pipe_ringbuffer pipes[PIPE_LIMIT];
@@ -335,23 +352,11 @@ int main()
 	size_t current_task = 0;
 	size_t i;
 
-    //
     NVIC_InitTypeDef NVIC_InitStructure;
 
-
-    // enable timer
-//mj	*(PIC + VIC_INTENABLE) = PIC_TIMER01;
-//mj
-//mj	*TIMER0 = 10000;        // counter
-//mj	*(TIMER0 + TIMER_CONTROL) = TIMER_EN | TIMER_PERIODIC
-//mj	                            | TIMER_32BIT | TIMER_INTEN;
-
-    // freertos
-//mj    *(portNVIC_SYSTICK_LOAD) = ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
-//mj	*(portNVIC_SYSTICK_CTRL) = portNVIC_SYSTICK_CLK | portNVIC_SYSTICK_INT | portNVIC_SYSTICK_ENABLE;
+	SysTick_Config(configCPU_CLOCK_HZ / configTICK_RATE_HZ);        // weird **cannot pass ticks in qemu** 
+  
     
-    SysTick_Config(10000);  // cmsis
-
     // enable uart
 	init_rs232();
     /* Enable the USART2 IRQ in the NVIC module (so that the USART2 interrupt
@@ -361,6 +366,7 @@ int main()
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 	enable_rs232();
+
 
     //
 	tasks[task_count] = init_task(stacks[task_count], &first);
