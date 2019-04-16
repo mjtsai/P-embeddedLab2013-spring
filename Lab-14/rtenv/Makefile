@@ -6,20 +6,17 @@ ARCH = CM3
 VENDOR = ST
 PLAT = STM32F10x
 
-LIBDIR = ../../Lab-8/freertos
+LIBDIR = .
 CMSIS_LIB=$(LIBDIR)/libraries/CMSIS/$(ARCH)
 STM32_LIB=$(LIBDIR)/libraries/STM32F10x_StdPeriph_Driver
 
 CMSIS_PLAT_SRC = $(CMSIS_LIB)/DeviceSupport/$(VENDOR)/$(PLAT)
 
-FREERTOS_SRC = libraries/FreeRTOS
-FREERTOS_INC = $(FREERTOS_SRC)/include/                                       
-FREERTOS_PORT_INC = $(FREERTOS_SRC)/portable/GCC/ARM_$(ARCH)/
-	
 all: main.bin
 
-main.bin: kernel.c context_switch.s syscalls.s
+main.bin: kernel.c context_switch.s syscall.s syscall.h
 	$(CROSS_COMPILE)gcc \
+		-DUSER_NAME=\"$(USER)\" \
 		-Wl,-Tmain.ld -nostartfiles \
 		-I . \
 		-I$(LIBDIR)/libraries/CMSIS/CM3/CoreSupport \
@@ -41,7 +38,7 @@ main.bin: kernel.c context_switch.s syscalls.s
 		$(STM32_LIB)/src/misc.c \
 		\
 		context_switch.s \
-		syscalls.s \
+		syscall.s \
 		stm32_p103.c \
 		kernel.c
 	$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
