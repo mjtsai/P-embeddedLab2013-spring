@@ -55,14 +55,6 @@ void puts(char *s)
 	}
 }
 
-#define MAX_CMDNAME 19
-#define MAX_ARGC 19
-#define MAX_CMDHELP 1023
-#define HISTORY_COUNT 20
-#define CMDBUF_SIZE 100
-#define MAX_ENVCOUNT 30
-#define MAX_ENVNAME 15
-#define MAX_ENVVALUE 127
 #define STACK_SIZE 512 /* Size of task stacks in words */
 #define TASK_LIMIT 8  /* Max number of tasks we can handle */
 #define PIPE_BUF   64 /* Size of largest atomic pipe message */
@@ -84,13 +76,9 @@ void puts(char *s)
 #define S_IFIFO 1
 #define S_IMSGQ 2
 
-#define O_CREAT 4
-
 /*Global Variables*/
 char next_line[3] = {'\n','\r','\0'};
 size_t task_count = 0;
-char cmd[HISTORY_COUNT][CMDBUF_SIZE];
-int cur_his=0;
 int fdout;
 int fdin;
 
@@ -220,12 +208,6 @@ int open(const char *pathname, int flags)
 	return fd;
 }
 
-int mq_open(const char *name, int oflag)
-{
-	if (oflag & O_CREAT)
-		mkfile(name, 0, S_IMSGQ);
-	return open(name, 0);
-}
 
 void serialout(USART_TypeDef* uart, unsigned int intr)
 {
@@ -292,101 +274,6 @@ void echo()
 	}
 }
 
-void rs232_xmit_msg_task()
-{
-	int fdout;
-	int fdin;
-	char str[100];
-	int curr_char;
-
-	fdout = open("/dev/tty0/out", 0);
-	fdin = mq_open("/tmp/mqueue/out", O_CREAT);
-	setpriority(0, PRIORITY_DEFAULT - 2);
-
-	while (1) {
-		/* Read from the queue.  Keep trying until a message is
-		 * received.  This will block for a period of time (specified
-		 * by portMAX_DELAY). */
-		read(fdin, str, 100);
-
-		/* Write each character of the message to the RS232 port. */
-		curr_char = 0;
-		while (str[curr_char] != '\0') {
-			write(fdout, &str[curr_char], 1);
-			curr_char++;
-		}
-	}
-}
-
-void queue_str_task(const char *str, int delay)
-{
-	int fdout = mq_open("/tmp/mqueue/out", 0);
-	int msg_len = strlen(str) + 1;
-
-	while (1) {
-		/* Post the message.  Keep on trying until it is successful. */
-		write(fdout, str, msg_len);
-
-		/* Wait. */
-		sleep(delay);
-	}
-}
-
-void queue_str_task1()
-{
-	queue_str_task("Hello 1\n", 200);
-}
-
-void queue_str_task2()
-{
-	queue_str_task("Hello 2\n", 50);
-}
-
-void serial_readwrite_task()
-{
-	int fdout;
-	int fdin;
-	char str[100];
-	char ch;
-	int curr_char;
-	int done;
-
-	fdout = mq_open("/tmp/mqueue/out", 0);
-	fdin = open("/dev/tty0/in", 0);
-
-	/* Prepare the response message to be queued. */
-	memcpy(str, "Got:", 4);
-
-	while (1) {
-		curr_char = 4;
-		done = 0;
-		do {
-			/* Receive a byte from the RS232 port (this call will
-			 * block). */
-			read(fdin, &ch, 1);
-
-			/* If the byte is an end-of-line type character, then
-			 * finish the string and inidcate we are done.
-			 */
-			if (curr_char >= 98 || ch == '\r' || ch == '\n') {
-				str[curr_char] = '\n';
-				str[curr_char+1] = '\0';
-				done = -1;
-			}
-			/* Otherwise, add the character to the
-			 * response string. */
-			else
-				str[curr_char++] = ch;
-		} while (!done);
-
-		/* Once we are done building the response string, queue the
-		 * response to be sent to the RS232 port.
-		 */
-		write(fdout, str, curr_char+1 + 1);
-	}
-}
-
-
 //this function helps to show int
 
 void itoa(int n, char *dst, int base)
@@ -407,17 +294,6 @@ void itoa(int n, char *dst, int base)
 	}
 
 	strcpy(dst, p);
-}
-
-int write_blank(int blank_num)
-{
-	char blank[] = " ";
-	int blank_count = 0;
-
-	while (blank_count <= blank_num) {
-		write(fdout, blank, sizeof(blank));
-		blank_count++;
-	}
 }
 
 void first()
@@ -878,21 +754,25 @@ int main()
 				task_push(&ready_list[task->priority], task);
 			task = next;
 		}
-		/* Select next TASK_READY task */
+        
+		/* Select next TASK_READY task that priority !< current task */
 		for (i = 0; i < (size_t)tasks[current_task].priority && ready_list[i] == NULL; i++);
+
 		if (tasks[current_task].status == TASK_READY) {
 			if (!timeup && i == (size_t)tasks[current_task].priority)
 				/* Current task has highest priority and remains execution time */
 				continue;
-			else
+			else    // last of this priority
 				task_push(&ready_list[tasks[current_task].priority], &tasks[current_task]);
 		}
 		else {
 			task_push(&wait_list, &tasks[current_task]);
 		}
+
 		while (ready_list[i] == NULL)
 			i++;
-		current_task = task_pop(&ready_list[i])->pid;
+		
+        current_task = task_pop(&ready_list[i])->pid;
 	}
 
 	return 0;
