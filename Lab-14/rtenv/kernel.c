@@ -111,7 +111,6 @@ struct task_control_block {
     struct user_thread_stack *stack;
     int pid;
     int status;
-    int priority;
     struct task_control_block **prev;
     struct task_control_block  *next;
 };
@@ -298,15 +297,13 @@ void itoa(int n, char *dst, int base)
 
 void first()
 {
-	setpriority(0, 0);
 
-	if (!fork()) setpriority(0, 0), pathserver();
-	if (!fork()) setpriority(0, 0), serialout(USART2, USART2_IRQn);
-	if (!fork()) setpriority(0, 0), serialin(USART2, USART2_IRQn);
-	if (!fork()) setpriority(0, 0), greeting();
-	if (!fork()) setpriority(0, 0), echo();
+	if (!fork()) pathserver();
+	if (!fork()) serialout(USART2, USART2_IRQn);
+	if (!fork()) serialin(USART2, USART2_IRQn);
+	if (!fork()) greeting();
+	if (!fork()) echo();
 
-	setpriority(0, PRIORITY_LIMIT);
 
 	while(1);
 }
@@ -623,7 +620,6 @@ int main()
 
 	tasks[task_count].stack = (void*)init_task(stacks[task_count], &first);
 	tasks[task_count].pid = 0;
-	tasks[task_count].priority = PRIORITY_DEFAULT;
 	task_count++;
 
 	/* Initialize all pipes */
@@ -660,14 +656,12 @@ int main()
 				       used * sizeof(unsigned int));
 				/* Set PID */
 				tasks[task_count].pid = task_count;
-				/* Set priority, inherited from forked task */
-				tasks[task_count].priority = tasks[current_task].priority;
 				/* Set return values in each process */
 				tasks[current_task].stack->r0 = task_count;
 				tasks[task_count].stack->r0 = 0;
 				tasks[task_count].prev = NULL;
 				tasks[task_count].next = NULL;
-				task_push(&ready_list[tasks[task_count].priority], &tasks[task_count]);
+				task_push(&ready_list[0], &tasks[task_count]);
 				/* There is now one more task */
 				task_count++;
 			}
@@ -687,31 +681,6 @@ int main()
 			/* Block task waiting for interrupt to happen */
 			tasks[current_task].status = TASK_WAIT_INTR;
 			break;
-		case 0x6: /* getpriority */
-			{
-				int who = tasks[current_task].stack->r0;
-				if (who > 0 && who < (int)task_count)
-					tasks[current_task].stack->r0 = tasks[who].priority;
-				else if (who == 0)
-					tasks[current_task].stack->r0 = tasks[current_task].priority;
-				else
-					tasks[current_task].stack->r0 = -1;
-			} break;
-		case 0x7: /* setpriority */
-			{
-				int who = tasks[current_task].stack->r0;
-				int value = tasks[current_task].stack->r1;
-				value = (value < 0) ? 0 : ((value > PRIORITY_LIMIT) ? PRIORITY_LIMIT : value);
-				if (who > 0 && who < (int)task_count)
-					tasks[who].priority = value;
-				else if (who == 0)
-					tasks[current_task].priority = value;
-				else {
-					tasks[current_task].stack->r0 = -1;
-					break;
-				}
-				tasks[current_task].stack->r0 = 0;
-			} break;
 		case 0x8: /* mknod */
 			if (tasks[current_task].stack->r0 < PIPE_LIMIT)
 				tasks[current_task].stack->r0 =
@@ -751,19 +720,16 @@ int main()
 		for (task = wait_list; task != NULL;) {
 			struct task_control_block *next = task->next;
 			if (task->status == TASK_READY)
-				task_push(&ready_list[task->priority], task);
+				task_push(&ready_list[0], task);
 			task = next;
 		}
         
-		/* Select next TASK_READY task that priority !< current task */
-		for (i = 0; i < (size_t)tasks[current_task].priority && ready_list[i] == NULL; i++);
-
 		if (tasks[current_task].status == TASK_READY) {
-			if (!timeup && i == (size_t)tasks[current_task].priority)
+			if (!timeup)
 				/* Current task has highest priority and remains execution time */
 				continue;
 			else    // last of this priority
-				task_push(&ready_list[tasks[current_task].priority], &tasks[current_task]);
+				task_push(&ready_list[0], &tasks[current_task]);
 		}
 		else {
 			task_push(&wait_list, &tasks[current_task]);
@@ -772,7 +738,7 @@ int main()
 		while (ready_list[i] == NULL)
 			i++;
 		
-        current_task = task_pop(&ready_list[i])->pid;
+        current_task = task_pop(&ready_list[0])->pid;
 	}
 
 	return 0;

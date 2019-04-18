@@ -43,22 +43,6 @@ interrupt_wait:
 	nop
 	pop {r7}
 	bx lr
-.global getpriority
-getpriority:
-	push {r7}
-	mov r7, #0x6
-	svc 0
-	nop
-	pop {r7}
-	bx lr
-.global setpriority
-setpriority:
-	push {r7}
-	mov r7, #0x7
-	svc 0
-	nop
-	pop {r7}
-	bx lr
 .global mknod
 mknod:
 	push {r7}

@@ -10,8 +10,6 @@ int read(int fd, void *buf, size_t count);
 
 void interrupt_wait(int intr);
 
-int getpriority(int who);
-int setpriority(int who, int value);
 
 int mknod(int fd, int mode, int dev);
 
