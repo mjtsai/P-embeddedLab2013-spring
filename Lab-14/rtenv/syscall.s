@@ -51,11 +51,3 @@ mknod:
 	nop
 	pop {r7}
 	bx lr
-.global sleep
-sleep:
-	push {r7}
-	mov r7, #0x9
-	svc 0
-	nop
-	pop {r7}
-	bx lr

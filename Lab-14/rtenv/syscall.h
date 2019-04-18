@@ -13,4 +13,3 @@ void interrupt_wait(int intr);
 
 int mknod(int fd, int mode, int dev);
 
-void sleep(unsigned int);

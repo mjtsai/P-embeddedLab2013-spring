@@ -689,12 +689,6 @@ int main()
 			else
 				tasks[current_task].stack->r0 = -1;
 			break;
-		case 0x9: /* sleep */
-			if (tasks[current_task].stack->r0 != 0) {
-				tasks[current_task].stack->r0 += tick_count;
-				tasks[current_task].status = TASK_WAIT_TIME;
-			}
-			break;
 		default: /* Catch all interrupts */
 			if ((int)tasks[current_task].stack->r7 < 0) {
 				unsigned int intr = -tasks[current_task].stack->r7 - 16;
