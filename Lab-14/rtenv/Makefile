@@ -1,10 +1,9 @@
-CROSS_COMPILE ?= arm-none-eabi-
-CC := $(CROSS_COMPILE)gcc
+CROSS_COMPILE=arm-none-eabi-
 QEMU_STM32 ?= ../qemu_stm32/arm-softmmu/qemu-system-arm
 
-ARCH = CM3
-VENDOR = ST
-PLAT = STM32F10x
+ARCH=CM3
+VENDOR=ST
+PLAT=STM32F10x
 
 LIBDIR = .
 CMSIS_LIB=$(LIBDIR)/libraries/CMSIS/$(ARCH)
@@ -12,13 +11,16 @@ STM32_LIB=$(LIBDIR)/libraries/STM32F10x_StdPeriph_Driver
 
 CMSIS_PLAT_SRC = $(CMSIS_LIB)/DeviceSupport/$(VENDOR)/$(PLAT)
 
+FREERTOS_SRC = libraries/FreeRTOS
+FREERTOS_INC = $(FREERTOS_SRC)/include/                                       
+FREERTOS_PORT_INC = $(FREERTOS_SRC)/portable/GCC/ARM_$(ARCH)/
+
 all: main.bin
 
-main.bin: kernel.c context_switch.s syscall.s syscall.h
+main.bin: kernel.c 	
 	$(CROSS_COMPILE)gcc \
-		-DUSER_NAME=\"$(USER)\" \
 		-Wl,-Tmain.ld -nostartfiles \
-		-I . \
+		-I. \
 		-I$(LIBDIR)/libraries/CMSIS/CM3/CoreSupport \
 		-I$(LIBDIR)/libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
 		-I$(CMSIS_LIB)/CM3/DeviceSupport/ST/STM32F10x \
@@ -37,9 +39,10 @@ main.bin: kernel.c context_switch.s syscall.s syscall.h
 		$(STM32_LIB)/src/stm32f10x_exti.c \
 		$(STM32_LIB)/src/misc.c \
 		\
-		context_switch.s \
-		syscall.s \
+		\
 		stm32_p103.c \
+		syscalls.s \
+		context_switch.s \
 		kernel.c
 	$(CROSS_COMPILE)objcopy -Obinary main.elf main.bin
 	$(CROSS_COMPILE)objdump -S main.elf > main.list
@@ -81,12 +84,15 @@ qemuauto: main.bin gdbscript
 	sleep 1
 	$(CROSS_COMPILE)gdb -x gdbscript&
 	sleep 5
+	python gdbvcd.py
 
 qemuauto_remote: main.bin gdbscript
 	bash emulate_remote.sh main.bin &
 	sleep 1
 	$(CROSS_COMPILE)gdb -x gdbscript&
 	sleep 5
+	python gdbvcd.py
+
 
 clean:
-	rm -f *.elf *.bin *.list
+	rm -f *.elf *.bin *.list gdb.txt
