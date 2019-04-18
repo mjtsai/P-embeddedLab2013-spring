@@ -729,9 +729,6 @@ int main()
 			task_push(&wait_list, &tasks[current_task]);
 		}
 
-		while (ready_list[i] == NULL)
-			i++;
-		
         current_task = task_pop(&ready_list[0])->pid;
 	}
 
