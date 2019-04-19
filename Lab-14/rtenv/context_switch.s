@@ -6,16 +6,16 @@
 .global USART2_IRQHandler
 SysTick_Handler:
 USART2_IRQHandler:
-	mrs r0, psp
-	stmdb r0!, {r7}
+	mrs r11, psp
+	stmdb r11!, {r7}
 
 	/* Get ISR number */
 	mrs r7, ipsr
 	neg r7, r7
 
 	/* save user state */
-	stmdb r0!, {r4, r5, r6, r7, r8, r9, r10, r11}    
-	stmfd r0!, {ip,lr}
+	stmdb r11!, {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10}    
+	stmdb r11!, {ip,lr}
 
 	/* load kernel state */
 	pop {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}
@@ -27,9 +27,9 @@ USART2_IRQHandler:
 .global SVC_Handler
 SVC_Handler:
 	/* save user state */
-	mrs r0, psp
-	stmdb r0!, {r4, r5, r6, r7, r8, r9, r10, r11}    
-	stmfd r0!, {ip,lr}
+	mrs r11, psp
+	stmdb r11!, {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10}    
+	stmdb r11!, {ip,lr}
 
 	/* load kernel state */
 	pop {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}
@@ -52,7 +52,7 @@ activate:
 	msr control, r0
 	
 	/* load user state */
-	pop {r4, r5, r6, r7, r8, r9, r10, r11}
+	pop {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10}
 	pop {r7}
 
 	bx lr    

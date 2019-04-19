@@ -231,13 +231,13 @@ void echo()
 void first()
 {
 //{{{
-//	if (!fork()) pathserver();
+	if (!fork()) pathserver();
 //mj	if (!fork()) serialout(UART0, PIC_UART0);
 	if (!fork()) serialout(USART2, USART2_IRQn);
 //mj	if (!fork()) serialin(UART0, PIC_UART0);
-//	if (!fork()) serialin(USART2, USART2_IRQn);
+	if (!fork()) serialin(USART2, USART2_IRQn);
 	if (!fork()) greeting();
-//	if (!fork()) echo();
+	if (!fork()) echo();
 
 	while(1);
 //}}}    

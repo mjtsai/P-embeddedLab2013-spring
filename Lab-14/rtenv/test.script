@@ -1,0 +1,14 @@
+file main.elf
+target remote :3333
+set logging file gdb.log
+set logging overwrite on
+set logging on
+
+b main
+c
+display /x $r0
+display /x $r7
+display /x $lr
+display /x $sp
+display /x $ip
+info address first
