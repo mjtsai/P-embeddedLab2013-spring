@@ -6,16 +6,17 @@
 .global USART2_IRQHandler
 SysTick_Handler:
 USART2_IRQHandler:
-	mrs r11, psp
-	stmdb r11!, {r7}
+	mrs r9, psp
+	stmdb r9!, {r7}
 
 	/* Get ISR number */
 	mrs r7, ipsr
 	neg r7, r7
 
 	/* save user state */
-	stmdb r11!, {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10}    
-	stmdb r11!, {ip,lr}
+	stmdb r9!, {r0, r1, r2, r3, r4, r5, r6, r7, r8}    
+	stmdb r9!, {ip, lr}    
+    mov r0, r9
 
 	/* load kernel state */
 	pop {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}
@@ -27,33 +28,35 @@ USART2_IRQHandler:
 .global SVC_Handler
 SVC_Handler:
 	/* save user state */
-	mrs r11, psp
-	stmdb r11!, {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10}    
-	stmdb r11!, {ip,lr}
+	mrs r9, psp
+	stmdb r9!, {r7}    
+	stmdb r9!, {r0, r1, r2, r3, r4, r5, r6, r7, r8}    
+	stmdb r9!, {ip, lr}    
+    mov r0, r9
 
 	/* load kernel state */
-	pop {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}
+	pop {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}              /* use msp */
 	msr psr, ip
 	
 	bx lr
     nop
+    /* use psp */
 .global activate
 activate:
 	/* save kernel state */
 	mrs ip, psr
 	push {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}
 	
+	/* load user state */
+    mov r9, r0
+    ldmfd r9!, {ip, lr}
+    ldmfd r9!, {r0, r1, r2, r3, r4, r5, r6, r7, r8}
+    ldmfd r9!, {r7}
 
-    ldmfd r0!, {ip,lr}
-    
 	/* switch to process stack pointer */
-	msr psp, r0 
+	msr psp, r9
 	mov r0, #3
 	msr control, r0
-	
-	/* load user state */
-	pop {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10}
-	pop {r7}
 
 	bx lr    
     nop

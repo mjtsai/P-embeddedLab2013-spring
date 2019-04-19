@@ -5,10 +5,23 @@ set logging overwrite on
 set logging on
 
 b main
+b SVC_Handler
+b activate
+b SysTick_Handler
+b USART2_IRQHandler
+b fork
+b serialout
+b greeting
 c
 display /x $r0
 display /x $r7
 display /x $lr
 display /x $sp
 display /x $ip
+display /x $r9
+display /x tasks
+display /x stacks
+display /x &tasks
+display /x &stacks
+display task_count
 info address first

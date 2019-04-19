@@ -231,7 +231,7 @@ void echo()
 void first()
 {
 //{{{
-	if (!fork()) pathserver();
+//	if (!fork()) pathserver();
 //mj	if (!fork()) serialout(UART0, PIC_UART0);
 	if (!fork()) serialout(USART2, USART2_IRQn);
 //mj	if (!fork()) serialin(UART0, PIC_UART0);
@@ -270,7 +270,7 @@ struct pipe_ringbuffer {
 
 unsigned int *init_task(unsigned int *stack, void (*start)())
 {
-	stack += STACK_SIZE - 16; /* End of stack, minus what we're about to push */
+	stack += STACK_SIZE - 12; /* End of stack, minus what we're about to push */
 	stack[0] = 0x10;                    // reserved
 	stack[1] = (unsigned int)start;
 	return stack;
@@ -354,7 +354,6 @@ int main()
 	init_rs232();
 	__enable_irq();
 
-
     // enable timer
 //mj	*(PIC + VIC_INTENABLE) = PIC_TIMER01;
 //mj
@@ -374,6 +373,8 @@ int main()
 	/* Initialize all pipes */
 	for (i = 0; i < PIPE_LIMIT; i++)
 		pipes[i].start = pipes[i].end = 0;
+
+
 
 	while (1) {
 		tasks[current_task] = activate(tasks[current_task]);
