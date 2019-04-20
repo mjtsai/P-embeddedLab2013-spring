@@ -270,9 +270,9 @@ struct pipe_ringbuffer {
 
 unsigned int *init_task(unsigned int *stack, void (*start)())
 {
-	stack += STACK_SIZE - 32; /* End of stack, minus what we're about to push */
-	stack[7] = 0x10;                    // reserved
+	stack += STACK_SIZE - 9;            /* End of stack, minus what we're about to push */
 	stack[8] = (unsigned int)start;
+    __set_PSP((uint32_t)stack);                   // avoid intr before all ready
 	return stack;
 }
 
@@ -353,18 +353,6 @@ int main()
 
 	init_rs232();
 	__enable_irq();
-
-    // enable timer
-//mj	*(PIC + VIC_INTENABLE) = PIC_TIMER01;
-//mj
-//mj	*TIMER0 = 10000;        // counter
-//mj	*(TIMER0 + TIMER_CONTROL) = TIMER_EN | TIMER_PERIODIC
-//mj	                            | TIMER_32BIT | TIMER_INTEN;
-
-    // freertos
-//mj    *(portNVIC_SYSTICK_LOAD) = ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
-//mj	*(portNVIC_SYSTICK_CTRL) = portNVIC_SYSTICK_CLK | portNVIC_SYSTICK_INT | portNVIC_SYSTICK_ENABLE;
-    
 
     //
 	tasks[task_count] = init_task(stacks[task_count], &first);
