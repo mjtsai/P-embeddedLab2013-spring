@@ -15,18 +15,15 @@ b serialin
 b greeting
 b echo
 c
-b 430
-b 365
 display /x $r0
 display /x $r7
 display /x $lr
 display /x $sp
 display /x $ip
-display /x $r9
-display /x tasks
 display /x stacks
-display /x &tasks
-display /x &stacks
+display /x *tasks[0].stack
+display /x *tasks[1].stack
+display /x *tasks[2].stack
 display task_count
 display current_task
 info address first

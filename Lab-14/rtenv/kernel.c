@@ -56,6 +56,37 @@ void puts(char *s)
 #define TASK_WAIT_WRITE 2
 #define TASK_WAIT_INTR  3
 
+
+/* Stack struct of user thread, see "Exception entry and return" */
+struct user_thread_stack {
+	unsigned int r4;
+	unsigned int r5;
+	unsigned int r6;
+	unsigned int r7;
+	unsigned int r8;
+	unsigned int r9;
+	unsigned int r10;
+	unsigned int fp;
+	unsigned int _lr;	/* Back to system calls or return exception */
+	unsigned int _r7;	/* Backup from isr */
+	unsigned int r0;
+	unsigned int r1;
+	unsigned int r2;
+	unsigned int r3;
+	unsigned int ip;
+	unsigned int lr;	/* Back to user thread code */
+	unsigned int pc;
+	unsigned int xpsr;
+//	unsigned int stack[STACK_SIZE - 18];
+};
+
+/* Task Control Block */
+struct task_control_block {
+    struct user_thread_stack *stack;
+    int pid;
+    int status;
+};
+
 /* 
  * pathserver assumes that all files are FIFOs that were registered
  * with mkfifo.  It also assumes a global tables of FDs shared by all
@@ -272,69 +303,68 @@ unsigned int *init_task(unsigned int *stack, void (*start)())
 {
 	stack += STACK_SIZE - 9;            /* End of stack, minus what we're about to push */
 	stack[8] = (unsigned int)start;
-    __set_PSP((uint32_t)stack);                   // avoid intr before all ready
 	return stack;
 }
 
-void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes);
-void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes);
+void _read(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes);
+void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes);
 
-void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes)
+void _read(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
 //{{{    
-	task[-1] = TASK_READY;
+	task->status = TASK_READY;
 	/* If the fd is invalid, or trying to read too much  */
-	if (task[0] > PIPE_LIMIT || task[2] > PIPE_BUF) {
-		task[0] = -1;
+	if (task->stack->r0 > PIPE_LIMIT || task->stack->r2 > PIPE_BUF) {
+		task->stack->r0 = -1;
 	}
 	else {
-		struct pipe_ringbuffer *pipe = &pipes[task[0]];
-		if ((size_t)PIPE_LEN(*pipe) < task[2]) {
+		struct pipe_ringbuffer *pipe = &pipes[task->stack->r0];
+		if ((size_t)PIPE_LEN(*pipe) < task->stack->r2) {
 			/* Trying to read more than there is: block */
-			task[-1] = TASK_WAIT_READ;
+			task->status = TASK_WAIT_READ;
 		}
 		else {
 			size_t i;
-			char *buf = (char*)task[1];
+			char *buf = (char*)task->stack->r1;
 			/* Copy data into buf */
-			for (i = 0; i < task[2]; i++) {
+			for (i = 0; i < task->stack->r2; i++) {
 				PIPE_POP(*pipe, buf[i]);
 			}
 
 			/* Unblock any waiting writes */
 			for (i = 0; i < task_count; i++)
-				if (tasks[i][-1] == TASK_WAIT_WRITE)
-					_write(tasks[i], tasks, task_count, pipes);
+				if (tasks[i].status == TASK_WAIT_WRITE)
+					_write(&tasks[i], tasks, task_count, pipes);
 		}
 	}
 //}}}    
 }
 
-void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct pipe_ringbuffer *pipes)
+void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
 //{{{    
 	/* If the fd is invalid or the write would be non-atomic */
-	if (task[0] > PIPE_LIMIT || task[2] > PIPE_BUF) {
-		task[0] = -1;
+	if (task->stack->r0 > PIPE_LIMIT || task->stack->r2 > PIPE_BUF) {
+		task->stack->r0 = -1;
 	}
 	else {
-		struct pipe_ringbuffer *pipe = &pipes[task[0]];
+		struct pipe_ringbuffer *pipe = &pipes[task->stack->r0];
 
-		if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) < task[2]) {
+		if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) < task->stack->r2) {
 			/* Trying to write more than we have space for: block */
-			task[-1] = TASK_WAIT_WRITE;
+			task->status = TASK_WAIT_WRITE;
 		}
 		else {
 			size_t i;
-			const char *buf = (const char*)task[1];
+			const char *buf = (const char*)task->stack->r1;
 			/* Copy data into pipe */
-			for (i = 0; i < task[2]; i++)
-				PIPE_PUSH(*pipe,buf[i]);
+			for (i = 0; i < task->stack->r2; i++)
+				PIPE_PUSH(*pipe, buf[i]);
 
 			/* Unblock any waiting reads */
 			for (i = 0; i < task_count; i++)
-				if (tasks[i][-1] == TASK_WAIT_READ)
-					_read(tasks[i], tasks, task_count, pipes);
+				if (tasks[i].status == TASK_WAIT_READ)
+					_read(&tasks[i], tasks, task_count, pipes);
 		}
 	}
 //}}}    
@@ -343,7 +373,7 @@ void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct 
 int main()
 {
 	unsigned int stacks[TASK_LIMIT][STACK_SIZE];
-	unsigned int *tasks[TASK_LIMIT];
+	struct task_control_block tasks[TASK_LIMIT];
 	struct pipe_ringbuffer pipes[PIPE_LIMIT];
 	size_t task_count = 0;
 	size_t current_task = 0;
@@ -355,7 +385,7 @@ int main()
 	__enable_irq();
 
     //
-	tasks[task_count] = init_task(stacks[task_count], &first);
+	tasks[task_count].stack = (void*)init_task(stacks[task_count], &first);
 	task_count++;
 
 	/* Initialize all pipes */
@@ -365,73 +395,69 @@ int main()
 
 
 	while (1) {
-		tasks[current_task] = activate(tasks[current_task]);
-		tasks[current_task][-1] = TASK_READY;
+		tasks[current_task].stack   = (void*)activate(tasks[current_task].stack);
+		tasks[current_task].status  = TASK_READY;
 
-		switch (tasks[current_task][3]) {
+		switch (tasks[current_task].stack->r7) {
 		case 0x1: /* fork */
 			if (task_count == TASK_LIMIT) {
 				/* Cannot create a new task, return error */
-				tasks[current_task][0] = -1;
+				tasks[current_task].status = -1;
 			}
 			else {
 				/* Compute how much of the stack is used */
-				size_t used = stacks[current_task] + STACK_SIZE
-					      - tasks[current_task];
+				size_t used = (unsigned int*)stacks[current_task] + STACK_SIZE
+					      - (unsigned int*)tasks[current_task].stack;
 				/* New stack is END - used */
-				tasks[task_count] = stacks[task_count] + STACK_SIZE - used;
+				tasks[task_count].stack = (void*)(stacks[task_count] + STACK_SIZE - used);
 				/* Copy only the used part of the stack */
-				memcpy(tasks[task_count], tasks[current_task],
-				       used * sizeof(*tasks[current_task]));
+				memcpy(tasks[task_count].stack, tasks[current_task].stack,
+				       used * sizeof(unsigned int));
+				tasks[task_count].pid = task_count;                
 				/* Set return values in each process */
-				tasks[current_task][0] = task_count;
-				tasks[task_count][0] = 0;
+				tasks[current_task].stack->r0 = task_count;
+				tasks[task_count].stack->r0 = 0;
 				/* There is now one more task */
 				task_count++;
 			}
 			break;
 		case 0x2: /* getpid */
-			tasks[current_task][0] = current_task;
+			tasks[current_task].stack->r0 = current_task;
 			break;
 		case 0x3: /* write */
-			_write(tasks[current_task], tasks, task_count, pipes);
+			_write(&tasks[current_task], tasks, task_count, pipes);
 			break;
 		case 0x4: /* read */
-			_read(tasks[current_task], tasks, task_count, pipes);
+			_read(&tasks[current_task], tasks, task_count, pipes);
 			break;
 		case 0x5: /* interrupt_wait */
 			/* Enable interrupt */
-//mj			*(PIC + VIC_INTENABLE) = tasks[current_task][2 + 0];
-            NVIC_EnableIRQ(tasks[current_task][0]);
+            NVIC_EnableIRQ(tasks[current_task].stack->r0);
             /* Block task waiting for interrupt to happen */
-			tasks[current_task][-1] = TASK_WAIT_INTR;
+			tasks[current_task].status = TASK_WAIT_INTR;
 			break;
 		default: /* Catch all interrupts */
-			if ((int)tasks[current_task][3] < 0) {      // **negative number** to handle so called exception return(cm3 arch)
-				unsigned int intr = -tasks[current_task][3] - 16;
+			if ((int)tasks[current_task].stack->r7 < 0) {      // **negative number** to handle so called exception return(cm3 arch)
+				unsigned int intr = -tasks[current_task].stack->r7 - 16;
 
 //mj				if (intr == PIC_TIMER01) {
 				if (intr == SysTick_IRQn) {
 					/* Never disable timer. We need it for pre-emption */
-//??					if (*(TIMER0 + TIMER_MIS)) { /* Timer0 went off */      // status
-//??						*(TIMER0 + TIMER_INTCLR) = 1; /* Clear interrupt */
-//??					}
 				}
 				else {
 					/* Disable interrupt, interrupt_wait re-enables */
-//mj					*(PIC + VIC_INTENCLEAR) = intr;
                     NVIC_DisableIRQ(intr);
 				}
 				/* Unblock any waiting tasks */
 				for (i = 0; i < task_count; i++)
-					if (tasks[i][-1] == TASK_WAIT_INTR && tasks[i][0] == intr)
-						tasks[i][-1] = TASK_READY;
+					if (tasks[i].status == TASK_WAIT_INTR && tasks[i].stack->r0 == intr)
+						tasks[i].status = TASK_READY;
 			}
 		}
 
 		/* Select next TASK_READY task */
 		while (TASK_READY != tasks[current_task =
-			(current_task+1 >= task_count ? 0 : current_task+1)][-1]);
+			(current_task+1 >= task_count ? 0 : current_task+1)].status);
 	}
 
 	return 0;
