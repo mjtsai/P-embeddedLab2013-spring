@@ -231,7 +231,7 @@ void echo()
 void first()
 {
 //{{{
-//	if (!fork()) pathserver();
+	if (!fork()) pathserver();
 //mj	if (!fork()) serialout(UART0, PIC_UART0);
 	if (!fork()) serialout(USART2, USART2_IRQn);
 //mj	if (!fork()) serialin(UART0, PIC_UART0);
@@ -270,9 +270,9 @@ struct pipe_ringbuffer {
 
 unsigned int *init_task(unsigned int *stack, void (*start)())
 {
-	stack += STACK_SIZE - 12; /* End of stack, minus what we're about to push */
-	stack[0] = 0x10;                    // reserved
-	stack[1] = (unsigned int)start;
+	stack += STACK_SIZE - 16; /* End of stack, minus what we're about to push */
+	stack[7] = 0x10;                    // reserved
+	stack[8] = (unsigned int)start;
 	return stack;
 }
 
@@ -284,20 +284,20 @@ void _read(unsigned int *task, unsigned int **tasks, size_t task_count, struct p
 //{{{    
 	task[-1] = TASK_READY;
 	/* If the fd is invalid, or trying to read too much  */
-	if (task[2+0] > PIPE_LIMIT || task[2+2] > PIPE_BUF) {
-		task[2+0] = -1;
+	if (task[0] > PIPE_LIMIT || task[2] > PIPE_BUF) {
+		task[0] = -1;
 	}
 	else {
-		struct pipe_ringbuffer *pipe = &pipes[task[2+0]];
-		if ((size_t)PIPE_LEN(*pipe) < task[2+2]) {
+		struct pipe_ringbuffer *pipe = &pipes[task[0]];
+		if ((size_t)PIPE_LEN(*pipe) < task[2]) {
 			/* Trying to read more than there is: block */
 			task[-1] = TASK_WAIT_READ;
 		}
 		else {
 			size_t i;
-			char *buf = (char*)task[2+1];
+			char *buf = (char*)task[1];
 			/* Copy data into buf */
-			for (i = 0; i < task[2+2]; i++) {
+			for (i = 0; i < task[2]; i++) {
 				PIPE_POP(*pipe, buf[i]);
 			}
 
@@ -314,21 +314,21 @@ void _write(unsigned int *task, unsigned int **tasks, size_t task_count, struct 
 {
 //{{{    
 	/* If the fd is invalid or the write would be non-atomic */
-	if (task[2 + 0] > PIPE_LIMIT || task[2 + 2] > PIPE_BUF) {
-		task[2 + 0] = -1;
+	if (task[0] > PIPE_LIMIT || task[2] > PIPE_BUF) {
+		task[0] = -1;
 	}
 	else {
-		struct pipe_ringbuffer *pipe = &pipes[task[2 + 0]];
+		struct pipe_ringbuffer *pipe = &pipes[task[0]];
 
-		if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) < task[2 + 2]) {
+		if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) < task[2]) {
 			/* Trying to write more than we have space for: block */
 			task[-1] = TASK_WAIT_WRITE;
 		}
 		else {
 			size_t i;
-			const char *buf = (const char*)task[2+1];
+			const char *buf = (const char*)task[1];
 			/* Copy data into pipe */
-			for (i = 0; i < task[2 + 2]; i++)
+			for (i = 0; i < task[2]; i++)
 				PIPE_PUSH(*pipe,buf[i]);
 
 			/* Unblock any waiting reads */
@@ -380,11 +380,11 @@ int main()
 		tasks[current_task] = activate(tasks[current_task]);
 		tasks[current_task][-1] = TASK_READY;
 
-		switch (tasks[current_task][2 + 7]) {
+		switch (tasks[current_task][9]) {
 		case 0x1: /* fork */
 			if (task_count == TASK_LIMIT) {
 				/* Cannot create a new task, return error */
-				tasks[current_task][2 + 0] = -1;
+				tasks[current_task][0] = -1;
 			}
 			else {
 				/* Compute how much of the stack is used */
@@ -396,14 +396,14 @@ int main()
 				memcpy(tasks[task_count], tasks[current_task],
 				       used * sizeof(*tasks[current_task]));
 				/* Set return values in each process */
-				tasks[current_task][2 + 0] = task_count;
-				tasks[task_count][2 + 0] = 0;
+				tasks[current_task][0] = task_count;
+				tasks[task_count][0] = 0;
 				/* There is now one more task */
 				task_count++;
 			}
 			break;
 		case 0x2: /* getpid */
-			tasks[current_task][2 + 0] = current_task;
+			tasks[current_task][0] = current_task;
 			break;
 		case 0x3: /* write */
 			_write(tasks[current_task], tasks, task_count, pipes);
@@ -414,13 +414,13 @@ int main()
 		case 0x5: /* interrupt_wait */
 			/* Enable interrupt */
 //mj			*(PIC + VIC_INTENABLE) = tasks[current_task][2 + 0];
-            NVIC_EnableIRQ(tasks[current_task][2 + 0]);
+            NVIC_EnableIRQ(tasks[current_task][0]);
             /* Block task waiting for interrupt to happen */
 			tasks[current_task][-1] = TASK_WAIT_INTR;
 			break;
 		default: /* Catch all interrupts */
-			if ((int)tasks[current_task][2 + 7] < 0) {      // **negative number**
-				unsigned int intr = (1 << -tasks[current_task][2+7]);
+			if ((int)tasks[current_task][9] < 0) {      // **negative number** to handle so called exception return(cm3 arch)
+				unsigned int intr = (1 << -tasks[current_task][9]);
 
 //mj				if (intr == PIC_TIMER01) {
 				if (intr == SysTick_IRQn) {
@@ -436,7 +436,7 @@ int main()
 				}
 				/* Unblock any waiting tasks */
 				for (i = 0; i < task_count; i++)
-					if (tasks[i][-1] == TASK_WAIT_INTR && tasks[i][2+0] == intr)
+					if (tasks[i][-1] == TASK_WAIT_INTR && tasks[i][0] == intr)
 						tasks[i][-1] = TASK_READY;
 			}
 		}
