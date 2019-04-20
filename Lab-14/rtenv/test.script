@@ -11,7 +11,9 @@ b SysTick_Handler
 b USART2_IRQHandler
 b fork
 b serialout
+b serialin
 b greeting
+b echo
 c
 display /x $r0
 display /x $r7

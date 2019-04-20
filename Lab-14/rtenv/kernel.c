@@ -270,7 +270,7 @@ struct pipe_ringbuffer {
 
 unsigned int *init_task(unsigned int *stack, void (*start)())
 {
-	stack += STACK_SIZE - 16; /* End of stack, minus what we're about to push */
+	stack += STACK_SIZE - 32; /* End of stack, minus what we're about to push */
 	stack[7] = 0x10;                    // reserved
 	stack[8] = (unsigned int)start;
 	return stack;
@@ -380,7 +380,7 @@ int main()
 		tasks[current_task] = activate(tasks[current_task]);
 		tasks[current_task][-1] = TASK_READY;
 
-		switch (tasks[current_task][9]) {
+		switch (tasks[current_task][3]) {
 		case 0x1: /* fork */
 			if (task_count == TASK_LIMIT) {
 				/* Cannot create a new task, return error */
@@ -419,8 +419,8 @@ int main()
 			tasks[current_task][-1] = TASK_WAIT_INTR;
 			break;
 		default: /* Catch all interrupts */
-			if ((int)tasks[current_task][9] < 0) {      // **negative number** to handle so called exception return(cm3 arch)
-				unsigned int intr = (1 << -tasks[current_task][9]);
+			if ((int)tasks[current_task][3] < 0) {      // **negative number** to handle so called exception return(cm3 arch)
+				unsigned int intr = -tasks[current_task][3] - 16;
 
 //mj				if (intr == PIC_TIMER01) {
 				if (intr == SysTick_IRQn) {
