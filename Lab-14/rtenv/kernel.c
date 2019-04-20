@@ -1,7 +1,6 @@
 #include "FreeRTOSConfig.h"
 #include <stddef.h>
 #include <stm32f10x.h>
-#include <misc.h>
 
 //
 void *memcpy(void *dest, const void *src, size_t n)
@@ -86,6 +85,7 @@ struct task_control_block {
     int pid;
     int status;
 };
+struct task_control_block tasks[TASK_LIMIT];
 
 /* 
  * pathserver assumes that all files are FIFOs that were registered
@@ -186,20 +186,19 @@ void serialout(USART_TypeDef* uart, unsigned int intr)
 	/* enable TX interrupt on UART */
 //mj	*(uart + UARTIMSC) |= UARTIMSC_TXIM;
 
-    USART_ITConfig(uart, USART_IT_TXE, ENABLE);
-
-
 	while (1) {
 		if (doread)
 			read(fd, &c, 1);
 		doread = 0;
 //mj		if (!(*(uart + UARTFR) & UARTFR_TXFF)) {
-        if(USART_GetITStatus(uart, USART_IT_TXE) == SET){
+        if(USART_GetFlagStatus(uart, USART_FLAG_TXE) == SET){
 //mj			*uart = c;
             USART_SendData(uart, c);   
+			USART_ITConfig(USART2, USART_IT_TXE, ENABLE);            
 			doread = 1;
 		}
 		interrupt_wait(intr);
+		USART_ITConfig(USART2, USART_IT_TXE, DISABLE);        
 //mj		*(uart + UARTICR) = UARTICR_TXIC;
 
 	}
@@ -225,7 +224,7 @@ void serialin(USART_TypeDef* uart, unsigned int intr)
 //mj		*(uart + UARTICR) = UARTICR_RXIC;
 
 //mj		if (!(*(uart + UARTFR) & UARTFR_RXFE)) {
-		if (USART_GetITStatus(uart, USART_IT_RXNE) != RESET) {
+		if (USART_GetFlagStatus(uart, USART_FLAG_RXNE) != RESET) {
 //mj			c = *uart;
             c = USART_ReceiveData(uart);
 			write(fd, &c, 1);
@@ -343,7 +342,8 @@ void _read(struct task_control_block *task, struct task_control_block *tasks, si
 void _write(struct task_control_block *task, struct task_control_block *tasks, size_t task_count, struct pipe_ringbuffer *pipes)
 {
 //{{{    
-	/* If the fd is invalid or the write would be non-atomic */
+	task->status = TASK_READY;
+    /* If the fd is invalid or the write would be non-atomic */
 	if (task->stack->r0 > PIPE_LIMIT || task->stack->r2 > PIPE_BUF) {
 		task->stack->r0 = -1;
 	}
@@ -373,7 +373,7 @@ void _write(struct task_control_block *task, struct task_control_block *tasks, s
 int main()
 {
 	unsigned int stacks[TASK_LIMIT][STACK_SIZE];
-	struct task_control_block tasks[TASK_LIMIT];
+//	struct task_control_block tasks[TASK_LIMIT];
 	struct pipe_ringbuffer pipes[PIPE_LIMIT];
 	size_t task_count = 0;
 	size_t current_task = 0;
@@ -386,6 +386,7 @@ int main()
 
     //
 	tasks[task_count].stack = (void*)init_task(stacks[task_count], &first);
+	tasks[task_count].pid = 0;
 	task_count++;
 
 	/* Initialize all pipes */
@@ -402,7 +403,7 @@ int main()
 		case 0x1: /* fork */
 			if (task_count == TASK_LIMIT) {
 				/* Cannot create a new task, return error */
-				tasks[current_task].status = -1;
+				tasks[current_task].stack->r0 = -1;
 			}
 			else {
 				/* Compute how much of the stack is used */

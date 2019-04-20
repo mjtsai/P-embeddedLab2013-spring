@@ -6,24 +6,21 @@ set logging on
 
 b main
 b SVC_Handler
-b activate
-b SysTick_Handler
-b USART2_IRQHandler
 b fork
+b getpid
 b serialout
 b serialin
 b greeting
-b echo
 c
 display /x $r0
 display /x $r7
 display /x $lr
 display /x $sp
 display /x $ip
-display /x stacks
-display /x *tasks[0].stack
-display /x *tasks[1].stack
 display /x *tasks[2].stack
+display /x *tasks[3].stack
+display /x *tasks[4].stack
+display /x tasks
 display task_count
 display current_task
 info address first
