@@ -17,7 +17,7 @@ FREERTOS_PORT_INC = $(FREERTOS_SRC)/portable/GCC/ARM_$(ARCH)/
 
 all: main.bin
 
-main.bin: kernel.c 	
+main.bin: kernel.c context_switch.s syscalls.s
 	$(CROSS_COMPILE)gcc \
 		-Wl,-Tmain.ld -nostartfiles \
 		-I. \

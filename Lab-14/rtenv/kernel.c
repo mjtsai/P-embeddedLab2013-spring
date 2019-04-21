@@ -43,11 +43,11 @@ void puts(char *s)
 
 #define STACK_SIZE 512 /* Size of task stacks in words */
 #define TASK_LIMIT 8  /* Max number of tasks we can handle */
-#define PIPE_BUF   64 /* Size of largest atomic pipe message */
+#define PIPE_BUF   128 /* Size of largest atomic pipe message */
 #define PATH_MAX   32 /* Longest absolute path */
 #define PIPE_LIMIT (TASK_LIMIT * 2)
 
-#define PATHSERVER_FD (TASK_LIMIT + 3) 
+#define PATHSERVER_FD (TASK_LIMIT + 10) 
 	/* File descriptor of pipe to pathserver */
 
 #define TASK_READY      0
@@ -282,13 +282,13 @@ struct pipe_ringbuffer {
 #define RB_PUSH(rb, size, v) do { \
 		(rb).data[(rb).end] = (v); \
 		(rb).end++; \
-		if ((rb).end > size) (rb).end = 0; \
+		if ((rb).end >= size) (rb).end = 0; \
 	} while (0)
 
 #define RB_POP(rb, size, v) do { \
 		(v) = (rb).data[(rb).start]; \
 		(rb).start++; \
-		if ((rb).start > size) (rb).start = 0; \
+		if ((rb).start >= size) (rb).start = 0; \
 	} while (0)
 
 #define RB_LEN(rb, size) (((rb).end - (rb).start) + \

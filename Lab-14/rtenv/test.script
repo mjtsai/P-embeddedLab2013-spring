@@ -16,7 +16,7 @@ display /x $r0
 display /x $r7
 display /x $lr
 display /x $sp
-display /x $ip
+display /x $pc
 display /x *tasks[2].stack
 display /x *tasks[3].stack
 display /x *tasks[4].stack
