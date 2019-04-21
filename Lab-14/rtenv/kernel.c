@@ -331,22 +331,11 @@ struct pipe_ringbuffer {
 		if ((rb).start >= size) (rb).start = 0; \
 	} while (0)
 
-#define RB_PEEK(rb, size, v, i) do { \
-		int _counter = (i); \
-		int _src_index = (rb).start; \
-		int _dst_index = 0; \
-		while (_counter--) { \
-			((char*)&(v))[_dst_index++] = (rb).data[_src_index++]; \
-			if (_src_index >= size) _src_index = 0; \
-		} \
-	} while (0)
-
 #define RB_LEN(rb, size) (((rb).end - (rb).start) + \
 	(((rb).end < (rb).start) ? size : 0))
 
 #define PIPE_PUSH(pipe, v) RB_PUSH((pipe), PIPE_BUF, (v))
 #define PIPE_POP(pipe, v)  RB_POP((pipe), PIPE_BUF, (v))
-#define PIPE_PEEK(pipe, v, i)  RB_PEEK((pipe), PIPE_BUF, (v), (i))
 #define PIPE_LEN(pipe)     (RB_LEN((pipe), PIPE_BUF))
 
 unsigned int *init_task(unsigned int *stack, void (*start)())
@@ -458,28 +447,7 @@ fifo_readable (struct pipe_ringbuffer *pipe,
 	return 1;
 }
 
-int
-mq_readable (struct pipe_ringbuffer *pipe,
-			 struct task_control_block *task)
-{
-	size_t msg_len;
 
-	/* Trying to read too much */
-	if ((size_t)PIPE_LEN(*pipe) < sizeof(size_t)) {
-		/* Nothing to read */
-		task->status = TASK_WAIT_READ;
-		return 0;
-	}
-
-	PIPE_PEEK(*pipe, msg_len, 4);
-
-	if (msg_len > task->stack->r2) {
-		/* Trying to read more than buffer size */
-		task->stack->r0 = -1;
-		return 0;
-	}
-	return 1;
-}
 
 int
 fifo_read (struct pipe_ringbuffer *pipe,
@@ -494,23 +462,6 @@ fifo_read (struct pipe_ringbuffer *pipe,
 	return task->stack->r2;
 }
 
-int
-mq_read (struct pipe_ringbuffer *pipe,
-		 struct task_control_block *task)
-{
-	size_t msg_len;
-	size_t i;
-	char *buf = (char*)task->stack->r1;
-	/* Get length */
-	for (i = 0; i < 4; i++) {
-		PIPE_POP(*pipe, *(((char*)&msg_len)+i));
-	}
-	/* Copy data into buf */
-	for (i = 0; i < msg_len; i++) {
-		PIPE_POP(*pipe, buf[i]);
-	}
-	return msg_len;
-}
 
 int
 fifo_writable (struct pipe_ringbuffer *pipe,
@@ -530,25 +481,6 @@ fifo_writable (struct pipe_ringbuffer *pipe,
 	return 1;
 }
 
-int
-mq_writable (struct pipe_ringbuffer *pipe,
-			 struct task_control_block *task)
-{
-	size_t total_len = sizeof(size_t) + task->stack->r2;
-
-	/* If the write would be non-atomic */
-	if (total_len > PIPE_BUF) {
-		task->stack->r0 = -1;
-		return 0;
-	}
-	/* Preserve 1 byte to distiguish empty or full */
-	if ((size_t)PIPE_BUF - PIPE_LEN(*pipe) - 1 < total_len) {
-		/* Trying to write more than we have space for: block */
-		task->status = TASK_WAIT_WRITE;
-		return 0;
-	}
-	return 1;
-}
 
 int
 fifo_write (struct pipe_ringbuffer *pipe,
@@ -556,21 +488,6 @@ fifo_write (struct pipe_ringbuffer *pipe,
 {
 	size_t i;
 	const char *buf = (const char*)task->stack->r1;
-	/* Copy data into pipe */
-	for (i = 0; i < task->stack->r2; i++)
-		PIPE_PUSH(*pipe,buf[i]);
-	return task->stack->r2;
-}
-
-int
-mq_write (struct pipe_ringbuffer *pipe,
-		  struct task_control_block *task)
-{
-	size_t i;
-	const char *buf = (const char*)task->stack->r1;
-	/* Copy count into pipe */
-	for (i = 0; i < sizeof(size_t); i++)
-		PIPE_PUSH(*pipe,*(((char*)&task->stack->r2)+i));
 	/* Copy data into pipe */
 	for (i = 0; i < task->stack->r2; i++)
 		PIPE_PUSH(*pipe,buf[i]);
@@ -586,12 +503,6 @@ _mknod(struct pipe_ringbuffer *pipe, int dev)
 		pipe->writable = fifo_writable;
 		pipe->read = fifo_read;
 		pipe->write = fifo_write;
-		break;
-	case S_IMSGQ:
-		pipe->readable = mq_readable;
-		pipe->writable = mq_writable;
-		pipe->read = mq_read;
-		pipe->write = mq_write;
 		break;
 	default:
 		return 1;
