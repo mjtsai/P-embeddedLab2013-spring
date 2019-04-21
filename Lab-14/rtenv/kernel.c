@@ -47,7 +47,7 @@ void puts(char *s)
 #define PATH_MAX   32 /* Longest absolute path */
 #define PIPE_LIMIT (TASK_LIMIT * 2)
 
-#define PATHSERVER_FD (TASK_LIMIT + 10) 
+#define PATHSERVER_FD (TASK_LIMIT + 3) 
 	/* File descriptor of pipe to pathserver */
 
 #define TASK_READY      0
@@ -312,8 +312,8 @@ void _read(struct task_control_block *task, struct task_control_block *tasks, si
 {
 //{{{    
 	task->status = TASK_READY;
-	/* If the fd is invalid, or trying to read too much  */
-	if (task->stack->r0 > PIPE_LIMIT || task->stack->r2 > PIPE_BUF) {
+	/* If the fd is invalid  */
+	if (task->stack->r0 > PIPE_LIMIT) {
 		task->stack->r0 = -1;
 	}
 	else {
@@ -343,8 +343,8 @@ void _write(struct task_control_block *task, struct task_control_block *tasks, s
 {
 //{{{    
 	task->status = TASK_READY;
-    /* If the fd is invalid or the write would be non-atomic */
-	if (task->stack->r0 > PIPE_LIMIT || task->stack->r2 > PIPE_BUF) {
+    /* If the fd is invalid  */
+	if (task->stack->r0 > PIPE_LIMIT ) {
 		task->stack->r0 = -1;
 	}
 	else {
